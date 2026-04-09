@@ -1,0 +1,167 @@
+import React, { useEffect, useState } from 'react';
+import { useGame } from '../game/GameContext';
+import { levelData } from '../game/levels';
+import { calculateScore, addToLeaderboard } from '../game/storage';
+
+const CONFETTI_COLORS = ['#FBBF24', '#14B8A6', '#3B82F6', '#F97316', '#8B5CF6'];
+
+export default function ResultScreen() {
+  const { state, dispatch } = useGame();
+  const level = levelData.find(l => l.id === state.currentLevel) || levelData[0];
+  const progress = state.levelProgress[level.id];
+  const success = !!progress?.completed;
+  const stars = progress?.stars || 0;
+  const score = progress?.bestScore || 0;
+  const time = progress?.bestTime || 0;
+
+  const [showStars, setShowStars] = useState([false, false, false]);
+  const [confetti, setConfetti] = useState<{ x: number; y: number; color: string; delay: number }[]>([]);
+
+  useEffect(() => {
+    if (success) {
+      // Staggered star reveal
+      [0, 1, 2].forEach(i => {
+        if (i < stars) {
+          setTimeout(() => setShowStars(s => { const n = [...s]; n[i] = true; return n; }), 300 + i * 300);
+        }
+      });
+
+      // Confetti
+      const pieces = Array.from({ length: 20 }, () => ({
+        x: Math.random() * 100,
+        y: Math.random() * -20,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        delay: Math.random() * 0.5,
+      }));
+      setConfetti(pieces);
+    }
+  }, [success, stars]);
+
+  const nextLevel = () => {
+    if (state.currentLevel >= 50) {
+      dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+    } else {
+      dispatch({ type: 'SET_LEVEL', level: state.currentLevel + 1 });
+      dispatch({ type: 'SET_SCREEN', screen: 'game' });
+    }
+  };
+
+  const replay = () => {
+    dispatch({ type: 'SET_SCREEN', screen: 'game' });
+  };
+
+  // Save to leaderboard on success
+  useEffect(() => {
+    if (success && !state.practiceMode) {
+      const totalScore = Object.values(state.levelProgress).reduce((s, p) => s + p.bestScore, 0);
+      addToLeaderboard({
+        name: state.playerName || 'Player',
+        avatar: state.avatar,
+        totalStars: state.totalStars,
+        bestLevel: state.currentLevel,
+        totalScore,
+      });
+    }
+  }, []);
+
+  const starMessage = stars === 3 ? "Perfect Run! Outstanding performance." : stars === 2 ? "Great job! Clean and efficient." : "Level cleared! Keep improving.";
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #F0F5FF 0%, #F7F9FC 100%)' }}>
+      {/* Confetti */}
+      {success && confetti.map((c, i) => (
+        <div
+          key={i}
+          className="absolute w-3 h-3 rounded-sm"
+          style={{
+            left: `${c.x}%`,
+            top: `${c.y}%`,
+            background: c.color,
+            animation: `confettiDrop 2s ${c.delay}s ease-out forwards`,
+          }}
+        />
+      ))}
+
+      <div className="game-card w-full max-w-[480px] text-center relative z-10">
+        {success ? (
+          <>
+            {/* Success checkmark */}
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-slow" style={{ background: 'hsl(168, 76%, 40%)' }}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="white"><path d="M8 16l6 6 10-12" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </div>
+
+            <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Level Complete! 🎉</h2>
+            <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>Level {level.id} — {level.name}</p>
+
+            {/* Stars */}
+            <div className="flex justify-center gap-4 mb-2">
+              {[0, 1, 2].map(i => (
+                <span
+                  key={i}
+                  className={`text-4xl ${showStars[i] ? 'animate-star-pop' : ''}`}
+                  style={{ opacity: showStars[i] ? 1 : 0.2 }}
+                >
+                  {i < stars ? '⭐' : '☆'}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>{starMessage}</p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {[
+                { label: 'Time', value: `${time}s`, icon: '⏱' },
+                { label: 'Commands', value: `${progress?.bestScore ? '—' : '—'} / par ${level.parCommands}`, icon: '📝' },
+                { label: 'Score', value: `${score.toLocaleString()} pts`, icon: '🏆', highlight: true },
+                { label: 'Hints Used', value: '0', icon: '💡' },
+              ].map(s => (
+                <div key={s.label} className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
+                  <p className="text-lg mb-0.5">{s.icon}</p>
+                  <p className={`font-bold ${s.highlight ? 'text-lg' : 'text-sm'}`} style={{ color: s.highlight ? 'hsl(217, 91%, 60%)' : 'hsl(217, 33%, 17%)' }}>{s.value}</p>
+                  <p className="text-xs" style={{ color: 'hsl(215, 16%, 47%)' }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Concept badge */}
+            <div className="inline-flex items-center gap-1 px-4 py-2 rounded-full mb-6 text-sm font-bold" style={{ background: 'hsl(168, 76%, 92%)', color: 'hsl(168, 76%, 30%)' }}>
+              ✓ {level.conceptTaught} Mastered
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Failure */}
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'hsl(25, 95%, 53%)' }}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="white"><text x="16" y="22" textAnchor="middle" fontSize="20" fontWeight="bold">!</text></svg>
+            </div>
+
+            <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Not Quite!</h2>
+            <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>Your robot didn't reach the goal. Review your sequence.</p>
+
+            <div className="p-4 rounded-xl mb-6" style={{ background: 'hsl(43, 96%, 95%)', color: 'hsl(43, 96%, 30%)' }}>
+              <p className="text-sm">💡 <strong>Tip:</strong> Check your turn commands and make sure you have enough moves to reach the goal.</p>
+            </div>
+          </>
+        )}
+
+        {/* Buttons */}
+        <div className="flex flex-col gap-2">
+          {success ? (
+            <>
+              <button className="btn-primary w-full" onClick={nextLevel}>
+                {state.currentLevel >= 50 ? 'All Done! 🎉' : 'Next Level →'}
+              </button>
+              <button className="btn-secondary w-full" onClick={replay}>Replay</button>
+            </>
+          ) : (
+            <>
+              <button className="btn-primary w-full" onClick={replay}>Try Again</button>
+              <button className="btn-secondary w-full" onClick={() => { replay(); }}>Use Hint</button>
+            </>
+          )}
+          <button className="btn-secondary w-full" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'levelMap' })}>Back to Map</button>
+        </div>
+      </div>
+    </div>
+  );
+}
