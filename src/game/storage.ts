@@ -72,7 +72,19 @@ export function getLeaderboard(): LeaderboardEntry[] {
 
 export function addToLeaderboard(entry: LeaderboardEntry) {
   const lb = getLeaderboard();
-  lb.push(entry);
+  // Upsert: update existing entry for same player name instead of adding duplicates
+  const existingIdx = lb.findIndex(e => e.name === entry.name);
+  if (existingIdx !== -1) {
+    const existing = lb[existingIdx];
+    lb[existingIdx] = {
+      ...entry,
+      totalStars: Math.max(existing.totalStars, entry.totalStars),
+      bestLevel: Math.max(existing.bestLevel, entry.bestLevel),
+      totalScore: Math.max(existing.totalScore, entry.totalScore),
+    };
+  } else {
+    lb.push(entry);
+  }
   lb.sort((a, b) => b.totalScore - a.totalScore);
   const top10 = lb.slice(0, 10);
   localStorage.setItem(KEYS.leaderboard, JSON.stringify(top10));
