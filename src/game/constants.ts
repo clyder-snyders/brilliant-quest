@@ -20,7 +20,6 @@ export const GAME_CONFIG = {
   ZONE_UNLOCK_COMPLETION_THRESHOLD: 0.7, // 70% completion required to unlock next zone
   
   // Scoring
-  HINTS_PENALTY: 50,
   WALL_HIT_PENALTY: 30,
   PERFECT_BONUS: 100,
   LOOP_BONUS: 40,
