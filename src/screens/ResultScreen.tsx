@@ -22,11 +22,6 @@ const pluralize = (count: number, word: string) => `${count} ${word}${count === 
 export default function ResultScreen() {
   const { state, dispatch } = useGame();
 
-  if (!isValidLevelId(state.currentLevel)) {
-    dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
-    return null;
-  }
-
   const level = levelData.find(l => l.id === state.currentLevel) || levelData[0];
   const progress = state.levelProgress[level.id];
   const success = !!progress?.completed;
@@ -37,6 +32,13 @@ export default function ResultScreen() {
 
   const [showStars, setShowStars] = useState([false, false, false]);
   const [confetti, setConfetti] = useState<{ x: number; y: number; color: string; delay: number }[]>([]);
+
+  useEffect(() => {
+    if (!isValidLevelId(state.currentLevel)) {
+      dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+      return;
+    }
+  }, [state.currentLevel, dispatch]);
 
   useEffect(() => {
     if (success) {
@@ -58,19 +60,6 @@ export default function ResultScreen() {
     }
   }, [success, stars]);
 
-  const nextLevel = () => {
-    if (state.currentLevel >= 50) {
-      dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
-    } else {
-      dispatch({ type: 'SET_LEVEL', levelId: state.currentLevel + 1 });
-      dispatch({ type: 'SET_SCREEN', screen: 'game' });
-    }
-  };
-
-  const replay = () => {
-    dispatch({ type: 'SET_SCREEN', screen: 'game' });
-  };
-
   useEffect(() => {
     if (success && !state.practiceMode) {
       const totalScore = Object.values(state.levelProgress).reduce((s, p) => s + p.bestScore, 0);
@@ -85,11 +74,27 @@ export default function ResultScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!isValidLevelId(state.currentLevel)) {
+    return null;
+  }
+
+  const nextLevel = () => {
+    if (state.currentLevel >= 50) {
+      dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+    } else {
+      dispatch({ type: 'SET_LEVEL', levelId: state.currentLevel + 1 });
+      dispatch({ type: 'SET_SCREEN', screen: 'game' });
+    }
+  };
+
+  const replay = () => {
+    dispatch({ type: 'SET_SCREEN', screen: 'game' });
+  };
+
   const starMessage = stars === 3 ? "Perfect Run! Outstanding performance." : stars === 2 ? "Great job! Clean and efficient." : "Level cleared! Keep improving.";
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #F0F5FF 0%, #F7F9FC 100%)' }}>
-      {/* Confetti */}
       {success && confetti.map((c, i) => (
         <div
           key={i}
@@ -113,21 +118,15 @@ export default function ResultScreen() {
             <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Level Complete! 🎉</h2>
             <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>Level {level.id} — {level.name}</p>
 
-            {/* Stars */}
             <div className="flex justify-center gap-4 mb-2">
               {[0, 1, 2].map(i => (
-                <span
-                  key={i}
-                  className={`text-4xl ${showStars[i] ? 'animate-star-pop' : ''}`}
-                  style={{ opacity: showStars[i] ? 1 : 0.2 }}
-                >
+                <span key={i} className={`text-4xl ${showStars[i] ? 'animate-star-pop' : ''}`} style={{ opacity: showStars[i] ? 1 : 0.2 }}>
                   {i < stars ? '⭐' : '☆'}
                 </span>
               ))}
             </div>
             <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>{starMessage}</p>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
                 <p className="text-lg mb-0.5">⏱</p>
@@ -155,7 +154,6 @@ export default function ResultScreen() {
               </div>
             </div>
 
-            {/* Concept badge */}
             <div className="inline-flex items-center gap-1 px-4 py-2 rounded-full mb-6 text-sm font-bold" style={{ background: 'hsl(168, 76%, 92%)', color: 'hsl(168, 76%, 30%)' }}>
               ✓ {level.conceptTaught} Mastered
             </div>
@@ -177,7 +175,6 @@ export default function ResultScreen() {
           </>
         )}
 
-        {/* Buttons */}
         <div className="flex flex-col gap-2">
           {success ? (
             <>
