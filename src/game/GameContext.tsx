@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { AvatarId, GameState, LevelProgress } from './types';
 import { loadGameState, savePlayerProfile, saveLevelProgress } from './storage';
+import { isValidLevelId } from './validation';
 
 type Action =
   | { type: 'SET_SCREEN'; screen: string }
-  | { type: 'SET_LEVEL'; level: number }
+  | { type: 'SET_LEVEL'; levelId: number }
   | { type: 'SET_PROFILE'; name: string; avatar: AvatarId }
   | { type: 'SET_PRACTICE'; practice: boolean }
   | { type: 'COMPLETE_LEVEL'; levelId: number; progress: LevelProgress }
@@ -26,16 +27,21 @@ function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'SET_SCREEN':
       return { ...state, currentScreen: action.screen };
-    case 'SET_LEVEL':
-      return { ...state, currentLevel: action.level };
+    case 'SET_LEVEL': {
+      // Validate level ID is within valid range, default to 1 if invalid
+      const levelId = isValidLevelId(action.levelId) ? action.levelId : 1;
+      return { ...state, currentLevel: levelId };
+    }
     case 'SET_PROFILE':
       savePlayerProfile(action.name, action.avatar);
       return { ...state, playerName: action.name, avatar: action.avatar };
     case 'SET_PRACTICE':
-      return { ...state, practiceMode: action.practice };
+      // Reset level to 1 when entering/exiting practice mode
+      return { ...state, practiceMode: action.practice, currentLevel: 1 };
     case 'COMPLETE_LEVEL': {
-      if (state.practiceMode) return state;
-      const newProgress = saveLevelProgress(action.levelId, action.progress, { ...state.levelProgress });
+      // Always update state so ResultScreen can detect completion
+      // saveLevelProgress accepts practiceMode to avoid saving to localStorage in practice mode
+      const newProgress = saveLevelProgress(action.levelId, action.progress, { ...state.levelProgress }, state.practiceMode);
       const totalStars = Object.values(newProgress).reduce((s, p) => s + p.stars, 0);
       return { ...state, levelProgress: newProgress, totalStars };
     }

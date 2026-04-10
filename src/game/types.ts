@@ -23,6 +23,9 @@ export interface LevelProgress {
   stars: number;
   bestScore: number;
   bestTime: number;
+  bestCommandsUsed?: number;
+  bestHintsUsed?: number;
+  bestWallHits?: number;
 }
 
 export type AvatarId = 'spark' | 'nova' | 'bolt' | 'pixel' | 'orbit' | 'ghost';

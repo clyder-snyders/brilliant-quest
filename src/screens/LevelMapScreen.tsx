@@ -27,22 +27,29 @@ export default function LevelMapScreen() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const isLevelUnlocked = (levelId: number) => {
+    // Level 1 is always unlocked
     if (levelId === 1) return true;
-    return state.levelProgress[levelId - 1]?.completed === true;
+    // All other levels require previous level to be completed
+    const previousLevelId = levelId - 1;
+    return !!state.levelProgress[previousLevelId]?.completed;
   };
 
   const isZoneAccessible = (zoneId: number) => {
     if (zoneId === 1) return true;
     const zoneLevels = levelData.filter(l => l.zone === zoneId - 1);
-    return zoneLevels.every(l => state.levelProgress[l.id]?.completed);
+    const completedCount = zoneLevels.filter(l => state.levelProgress[l.id]?.completed).length;
+    // Allow access to next zone at 70% completion (more flexible than 100%)
+    const threshold = Math.ceil(zoneLevels.length * 0.7);
+    return completedCount >= threshold;
   };
 
   const startLevel = (levelId: number) => {
-    dispatch({ type: 'SET_LEVEL', level: levelId });
+    dispatch({ type: 'SET_LEVEL', levelId });
     dispatch({ type: 'SET_SCREEN', screen: 'game' });
   };
 
-  const dailyChallengeLevel = (new Date().getDate() % 50) + 1;
+  // Daily challenge varies by day of month, uses available levels (currently 21, scales to 50)
+  const dailyChallengeLevel = Math.max(1, (new Date().getDate() % levelData.length) + 1);
 
   if (showLeaderboard) {
     const lb = getLeaderboard();

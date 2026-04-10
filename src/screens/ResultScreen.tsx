@@ -2,11 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { useGame } from '../game/GameContext';
 import { levelData } from '../game/levels';
 import { calculateScore, addToLeaderboard } from '../game/storage';
+import { GAME_CONFIG } from '../game/constants';
+import { isValidLevelId } from '../game/validation';
 
-const CONFETTI_COLORS = ['#FBBF24', '#14B8A6', '#3B82F6', '#F97316', '#8B5CF6'];
+const CONFETTI_COLORS = {
+  gold: ['#FBBF24', '#F59E0B', '#D97706'],      // 3 stars
+  silver: ['#E5E7EB', '#D1D5DB', '#9CA3AF'],    // 2 stars
+  bronze: ['#F97316', '#EA580C', '#DC2626'],    // 1 star
+};
+
+/**
+ * Get confetti colors based on achievement level
+ * @param stars - Number of stars earned (1, 2, or 3)
+ * @returns Array of colors for this achievement level
+ */
+const getConfettiColors = (stars: number): string[] => {
+  if (stars >= 3) return CONFETTI_COLORS.gold;
+  if (stars === 2) return CONFETTI_COLORS.silver;
+  return CONFETTI_COLORS.bronze;
+};
 
 export default function ResultScreen() {
   const { state, dispatch } = useGame();
+  
+  // Safety check: validate level ID before accessing
+  if (!isValidLevelId(state.currentLevel)) {
+    // Redirect to level map if invalid level
+    dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+    return null;
+  }
+  
   const level = levelData.find(l => l.id === state.currentLevel) || levelData[0];
   const progress = state.levelProgress[level.id];
   const success = !!progress?.completed;
@@ -20,17 +45,19 @@ export default function ResultScreen() {
   useEffect(() => {
     if (success) {
       // Staggered star reveal
+      const starDelay = GAME_CONFIG.TURN_DELAY; // 300ms per star
       [0, 1, 2].forEach(i => {
         if (i < stars) {
-          setTimeout(() => setShowStars(s => { const n = [...s]; n[i] = true; return n; }), 300 + i * 300);
+          setTimeout(() => setShowStars(s => { const n = [...s]; n[i] = true; return n; }), starDelay + i * starDelay);
         }
       });
 
-      // Confetti
+      // Confetti with colors based on achievement level
+      const colors = getConfettiColors(stars);
       const pieces = Array.from({ length: 20 }, () => ({
         x: Math.random() * 100,
         y: Math.random() * -20,
-        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
         delay: Math.random() * 0.5,
       }));
       setConfetti(pieces);
@@ -41,7 +68,7 @@ export default function ResultScreen() {
     if (state.currentLevel >= 50) {
       dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
     } else {
-      dispatch({ type: 'SET_LEVEL', level: state.currentLevel + 1 });
+      dispatch({ type: 'SET_LEVEL', levelId: state.currentLevel + 1 });
       dispatch({ type: 'SET_SCREEN', screen: 'game' });
     }
   };
@@ -50,7 +77,7 @@ export default function ResultScreen() {
     dispatch({ type: 'SET_SCREEN', screen: 'game' });
   };
 
-  // Save to leaderboard on success
+  // Save to leaderboard on success (only once when result is shown)
   useEffect(() => {
     if (success && !state.practiceMode) {
       const totalScore = Object.values(state.levelProgress).reduce((s, p) => s + p.bestScore, 0);
@@ -62,6 +89,7 @@ export default function ResultScreen() {
         totalScore,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const starMessage = stars === 3 ? "Perfect Run! Outstanding performance." : stars === 2 ? "Great job! Clean and efficient." : "Level cleared! Keep improving.";
@@ -111,9 +139,9 @@ export default function ResultScreen() {
             <div className="grid grid-cols-2 gap-3 mb-6">
               {[
                 { label: 'Time', value: `${time}s`, icon: '⏱' },
-                { label: 'Commands', value: `${progress?.bestScore ? '—' : '—'} / par ${level.parCommands}`, icon: '📝' },
+                { label: 'Commands', value: `${progress?.bestCommandsUsed || 0} / par ${level.parCommands}`, icon: '📝' },
                 { label: 'Score', value: `${score.toLocaleString()} pts`, icon: '🏆', highlight: true },
-                { label: 'Hints Used', value: '0', icon: '💡' },
+                { label: 'Hints Used', value: `${progress?.bestHintsUsed || 0}`, icon: '💡' },
               ].map(s => (
                 <div key={s.label} className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
                   <p className="text-lg mb-0.5">{s.icon}</p>
