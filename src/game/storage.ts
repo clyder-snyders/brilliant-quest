@@ -11,17 +11,27 @@ const KEYS = {
   leaderboard: 'brilliantOS_leaderboard',
 };
 
+/**
+ * Get today's date in YYYY-MM-DD format
+ */
+function getTodayDateString(): string {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
 export function calculateStreakAndPlayDate(): { streak: number; lastPlayDate: string } {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDateString();
   const lastPlayDate = localStorage.getItem(KEYS.lastPlayDate) || '';
-  let streak = parseInt(localStorage.getItem(KEYS.streak) || '0');
+  let streak = parseInt(localStorage.getItem(KEYS.streak) || '0', 10);
 
   if (lastPlayDate === today) {
     return { streak, lastPlayDate };
   }
 
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  if (lastPlayDate === yesterday) {
+  const yesterday = new Date(Date.now() - 86400000);
+  const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+  
+  if (lastPlayDate === yesterdayStr) {
     streak += 1;
   } else {
     streak = 1;
@@ -36,11 +46,38 @@ export function calculateStreakAndPlayDate(): { streak: number; lastPlayDate: st
 export function loadGameState(): Partial<GameState> {
   try {
     const { streak } = calculateStreakAndPlayDate();
+    const playerName = localStorage.getItem(KEYS.playerName) || '';
+    const avatarStr = localStorage.getItem(KEYS.avatar) || 'spark';
+    const totalStarsStr = localStorage.getItem(KEYS.totalStars) || '0';
+    
+    // Validate avatar is one of the valid types
+    const validAvatars = ['spark', 'nova', 'bolt', 'pixel', 'orbit', 'ghost'];
+    const avatar = (validAvatars.includes(avatarStr) ? avatarStr : 'spark') as AvatarId;
+    
+    // Validate totalStars is a valid number
+    const totalStars = Math.max(0, parseInt(totalStarsStr, 10) || 0);
+    
+    // Validate and clean level progress
+    let levelProgress: Record<number, any> = {};
+    try {
+      const parsed = JSON.parse(localStorage.getItem(KEYS.levelProgress) || '{}');
+      if (typeof parsed === 'object' && parsed !== null) {
+        Object.entries(parsed).forEach(([key, value]: [string, any]) => {
+          const levelId = parseInt(key, 10);
+          if (levelId >= 1 && levelId <= 50 && value && typeof value === 'object') {
+            levelProgress[levelId] = value;
+          }
+        });
+      }
+    } catch (e) {
+      console.error('[Storage Error] Failed to parse level progress:', e);
+    }
+    
     return {
-      playerName: localStorage.getItem(KEYS.playerName) || '',
-      avatar: (localStorage.getItem(KEYS.avatar) as AvatarId) || 'spark',
-      levelProgress: JSON.parse(localStorage.getItem(KEYS.levelProgress) || '{}'),
-      totalStars: parseInt(localStorage.getItem(KEYS.totalStars) || '0'),
+      playerName,
+      avatar,
+      levelProgress,
+      totalStars,
       streak,
       lastPlayDate: localStorage.getItem(KEYS.lastPlayDate) || '',
     };
@@ -56,6 +93,12 @@ export function savePlayerProfile(name: string, avatar: AvatarId) {
 }
 
 export function saveLevelProgress(levelId: number, progress: LevelProgress, allProgress: Record<number, LevelProgress>, practiceMode: boolean = false) {
+  // Validate levelId
+  if (!Number.isInteger(levelId) || levelId < 1 || levelId > 50) {
+    console.error(`[Storage Error] Invalid levelId: ${levelId}`);
+    return allProgress;
+  }
+
   const existing = allProgress[levelId];
   if (existing) {
     allProgress[levelId] = {
@@ -71,21 +114,12 @@ export function saveLevelProgress(levelId: number, progress: LevelProgress, allP
   }
 
   if (!practiceMode) {
-    localStorage.setItem(KEYS.levelProgress, JSON.stringify(allProgress));
-    const totalStars = Object.values(allProgress).reduce((sum, p) => sum + p.stars, 0);
-    localStorage.setItem(KEYS.totalStars, totalStars.toString());
-
-    const today = new Date().toDateString();
-    const lastDate = localStorage.getItem(KEYS.lastPlayDate);
-    if (lastDate !== today) {
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-      const currentStreak = parseInt(localStorage.getItem(KEYS.streak) || '0');
-      if (lastDate === yesterday) {
-        localStorage.setItem(KEYS.streak, (currentStreak + 1).toString());
-      } else if (lastDate !== today) {
-        localStorage.setItem(KEYS.streak, '1');
-      }
-      localStorage.setItem(KEYS.lastPlayDate, today);
+    try {
+      localStorage.setItem(KEYS.levelProgress, JSON.stringify(allProgress));
+      const totalStars = Object.values(allProgress).reduce((sum, p) => sum + (p.stars || 0), 0);
+      localStorage.setItem(KEYS.totalStars, totalStars.toString());
+    } catch (error) {
+      console.error('[Storage Error] Failed to save level progress:', error);
     }
   }
 

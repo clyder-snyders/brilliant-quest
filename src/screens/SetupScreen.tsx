@@ -12,11 +12,16 @@ export default function SetupScreen() {
   const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (!name.trim()) {
+    const trimmed = name.trim();
+    if (!trimmed) {
       setError('Please enter your name.');
       return;
     }
-    dispatch({ type: 'SET_PROFILE', name: name.trim(), avatar });
+    if (trimmed.length > 50) {
+      setError('Name must be 50 characters or less.');
+      return;
+    }
+    dispatch({ type: 'SET_PROFILE', name: trimmed, avatar });
     dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
   };
 

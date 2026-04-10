@@ -80,6 +80,13 @@ export default function WelcomeScreen() {
         <button className="btn-secondary text-base" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'levelMap' })}>
           Level Map
         </button>
+        <button 
+          className="btn-secondary text-base" 
+          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'about' })}
+          style={{ fontSize: '0.9rem' }}
+        >
+          ℹ️ About & Learn More
+        </button>
       </div>
 
       {/* Footer */}

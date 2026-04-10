@@ -23,18 +23,37 @@ const initialState: GameState = {
   lastPlayDate: '',
 };
 
+// Valid screen names
+const VALID_SCREENS = ['welcome', 'setup', 'levelMap', 'game', 'result', 'about'] as const;
+
+function isValidScreen(screen: unknown): screen is string {
+  return typeof screen === 'string' && VALID_SCREENS.includes(screen as any);
+}
+
 function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
-    case 'SET_SCREEN':
+    case 'SET_SCREEN': {
+      if (!isValidScreen(action.screen)) {
+        console.warn(`[GameContext] Invalid screen: ${action.screen}, defaulting to welcome`);
+        return { ...state, currentScreen: 'welcome' };
+      }
       return { ...state, currentScreen: action.screen };
+    }
     case 'SET_LEVEL': {
       // Validate level ID is within valid range, default to 1 if invalid
       const levelId = isValidLevelId(action.levelId) ? action.levelId : 1;
       return { ...state, currentLevel: levelId };
     }
-    case 'SET_PROFILE':
-      savePlayerProfile(action.name, action.avatar);
-      return { ...state, playerName: action.name, avatar: action.avatar };
+    case 'SET_PROFILE': {
+      // Validate profile data
+      const trimmedName = action.name.trim();
+      if (!trimmedName || trimmedName.length > 50) {
+        console.warn('[GameContext] Invalid player name, keeping previous');
+        return state;
+      }
+      savePlayerProfile(trimmedName, action.avatar);
+      return { ...state, playerName: trimmedName, avatar: action.avatar };
+    }
     case 'SET_PRACTICE':
       // Reset level to 1 when entering/exiting practice mode
       return { ...state, practiceMode: action.practice, currentLevel: 1 };

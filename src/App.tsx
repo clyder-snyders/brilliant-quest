@@ -9,13 +9,19 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+// Get the base path from Vite's import.meta.env.BASE_URL
+const getBaseName = () => {
+  const basePath = import.meta.env.BASE_URL;
+  return basePath === "/" ? "/" : basePath.replace(/\/$/, "");
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={getBaseName()}>
           <Routes>
             <Route path="/" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
