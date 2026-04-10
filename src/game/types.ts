@@ -24,7 +24,6 @@ export interface LevelProgress {
   bestScore: number;
   bestTime: number;
   bestCommandsUsed?: number;
-  bestHintsUsed?: number;
   bestWallHits?: number;
 }
 
