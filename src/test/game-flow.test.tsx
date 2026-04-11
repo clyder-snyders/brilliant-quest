@@ -51,11 +51,23 @@ describe('Game Flow End-to-End Tests', () => {
   });
 
   describe('Desktop - Welcome Screen', () => {
-    it('renders welcome screen with all UI elements', () => {
+    it('renders welcome screen with all UI elements', async () => {
       render(<AppTestWrapper />);
 
-      // Check main content
-      expect(screen.getByText('Brilliant OS')).toBeInTheDocument();
+      // Wait for splash to complete and welcome screen to be fully visible (splash takes 2.6s)
+      await waitFor(
+        () => {
+          const tagline = screen.getByText('Think in Code. Play for Real.');
+          expect(tagline).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+
+      // Now verify welcome screen content
+      const allBrilliantOS = screen.getAllByText('Brilliant OS');
+      // Get the last one (WelcomeScreen, not SplashScreen)
+      const welcomeTitle = allBrilliantOS[allBrilliantOS.length - 1];
+      expect(welcomeTitle).toBeInTheDocument();
       expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
 
       // Check feature badges
@@ -232,7 +244,7 @@ describe('Game Flow End-to-End Tests', () => {
         fireEvent.click(backBtn);
 
         await waitFor(() => {
-          expect(screen.getByText('Brilliant OS')).toBeInTheDocument();
+          expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
         }, { timeout: 1000 });
       }
     });
@@ -369,12 +381,22 @@ describe('Game Flow End-to-End Tests', () => {
       fireEvent.resize(window);
     };
 
-    it('displays welcome screen correctly on mobile', () => {
+    it('displays welcome screen correctly on mobile', async () => {
       setMobileViewport();
       render(<AppTestWrapper />);
 
+      // Wait for splash to exit and welcome screen visible
+      await waitFor(
+        () => {
+          expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+
       // Check all welcome elements are still visible
-      expect(screen.getByText('Brilliant OS')).toBeInTheDocument();
+      const allBrilliantOS = screen.getAllByText('Brilliant OS');
+      const mobileTitle = allBrilliantOS[allBrilliantOS.length - 1];
+      expect(mobileTitle).toBeInTheDocument();
       expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
 
       // Buttons should be accessible
@@ -386,11 +408,22 @@ describe('Game Flow End-to-End Tests', () => {
       });
     });
 
-    it('displays welcome screen correctly on tablet', () => {
+    it('displays welcome screen correctly on tablet', async () => {
       setTabletViewport();
       render(<AppTestWrapper />);
 
-      expect(screen.getByText('Brilliant OS')).toBeInTheDocument();
+      // Wait for splash to exit and welcome screen visible
+      await waitFor(
+        () => {
+          expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
+
+      // Check all welcome elements are still visible
+      const allBrilliantOS = screen.getAllByText('Brilliant OS');
+      const tabletTitle = allBrilliantOS[allBrilliantOS.length - 1];
+      expect(tabletTitle).toBeInTheDocument();
       expect(screen.getByText('Think in Code. Play for Real.')).toBeInTheDocument();
 
       // All buttons should be visible

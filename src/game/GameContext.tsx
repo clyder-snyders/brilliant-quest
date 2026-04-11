@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { AvatarId, GameState, LevelProgress } from './types';
-import { loadGameState, savePlayerProfile, saveLevelProgress } from './storage';
+import { loadGameState, savePlayerProfile, saveLevelProgress, hasProfile } from './storage';
 import { isValidLevelId } from './validation';
 
 type Action =
@@ -82,6 +82,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = loadGameState();
     dispatch({ type: 'LOAD_STATE', state: saved });
+
+    // If profile exists, skip setup and go to levelMap
+    if (hasProfile()) {
+      setTimeout(() => {
+        dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+      }, 0);
+    }
   }, []);
 
   return (

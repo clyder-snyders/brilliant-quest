@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { useGame } from '../game/GameContext';
 import { AvatarDisplay, avatarNames } from '../game/avatars';
 import { AvatarId } from '../game/types';
+import { hasProfile } from '../game/storage';
 
 const avatarIds: AvatarId[] = ['spark', 'nova', 'bolt', 'pixel', 'orbit', 'ghost'];
 
 export default function SetupScreen() {
-  const { dispatch } = useGame();
-  const [name, setName] = useState('');
-  const [avatar, setAvatar] = useState<AvatarId>('spark');
+  const { dispatch, state } = useGame();
+  const [name, setName] = useState(state.playerName || '');
+  const [avatar, setAvatar] = useState<AvatarId>(state.avatar || 'spark');
   const [error, setError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const profileExists = !!(state.playerName && state.playerName.trim().length > 0);
 
   const handleSubmit = () => {
     const trimmed = name.trim();
@@ -25,16 +29,24 @@ export default function SetupScreen() {
     dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
   };
 
+  const handleBack = () => {
+    if (profileExists) {
+      dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
+    } else {
+      dispatch({ type: 'SET_SCREEN', screen: 'welcome' });
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(180deg, #F0F5FF 0%, #F7F9FC 100%)' }}>
       <div className="game-card w-full max-w-[480px]">
         {/* Header */}
         <div className="flex items-center mb-6">
-          <button onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'welcome' })} className="mr-3 p-1 rounded-lg hover:bg-[hsl(220,33%,95%)] transition-colors" style={{ color: 'hsl(215, 16%, 47%)' }}>
+          <button onClick={handleBack} className="mr-3 p-1 rounded-lg hover:bg-[hsl(220,33%,95%)] transition-colors" style={{ color: 'hsl(215, 16%, 47%)' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
           <div className="flex-1 text-center">
-            <h2 className="text-2xl font-bold" style={{ color: 'hsl(217, 33%, 17%)' }}>Set Up Your Profile</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'hsl(217, 33%, 17%)' }}>{profileExists ? 'Edit Your Profile' : 'Set Up Your Profile'}</h2>
             <p className="text-sm mt-1" style={{ color: 'hsl(215, 16%, 47%)' }}>Personalize your experience before you start</p>
           </div>
           <div className="w-8" />
@@ -96,8 +108,51 @@ export default function SetupScreen() {
 
         {/* Submit */}
         <button className="btn-primary w-full text-base" onClick={handleSubmit}>
-          Start Playing →
+          {profileExists ? 'Update Profile →' : 'Start Playing →'}
         </button>
+
+        {/* Delete Profile Option - Only show if profile already exists */}
+        {profileExists && (
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="mt-3 w-full py-2.5 rounded-[14px] text-sm font-bold transition-colors"
+            style={{ background: 'hsl(0, 84%, 95%)', color: 'hsl(0, 84%, 60%)' }}
+          >
+            Delete This Profile
+          </button>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-40" style={{ zIndex: 50 }}>
+            <div className="game-card w-full max-w-[320px]">
+              <h3 className="text-lg font-bold mb-2" style={{ color: 'hsl(217, 33%, 17%)' }}>Delete Profile?</h3>
+              <p className="text-sm mb-4" style={{ color: 'hsl(215, 16%, 47%)' }}>
+                This will permanently erase "{state.playerName}", your progress, and all game data. This cannot be undone.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="btn-secondary py-2.5 text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const { deleteProfile } = require('../game/storage');
+                    deleteProfile();
+                    dispatch({ type: 'SET_SCREEN', screen: 'welcome' });
+                    setShowConfirm(false);
+                  }}
+                  className="py-2.5 rounded-[14px] text-sm font-bold text-white transition-colors"
+                  style={{ background: 'hsl(0, 84%, 60%)' }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

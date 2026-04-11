@@ -7,16 +7,26 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     const t1 = setTimeout(() => setPhase('text'), 600);
     const t2 = setTimeout(() => setPhase('exit'), 2000);
     const t3 = setTimeout(onComplete, 2600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [onComplete]);
+
+  if (phase === 'exit') {
+    return null;
+  }
 
   return (
     <div
+      data-testid="splash-screen"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500"
       style={{
         background: 'linear-gradient(135deg, hsl(217, 91%, 60%) 0%, hsl(258, 90%, 66%) 50%, hsl(217, 33%, 17%) 100%)',
-        opacity: phase === 'exit' ? 0 : 1,
-        pointerEvents: phase === 'exit' ? 'none' : 'auto',
+        opacity: 1,
+        pointerEvents: 'auto',
       }}
     >
       {/* Logo mark */}
@@ -57,43 +67,47 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       </div>
 
       {/* Wordmark */}
-      <div
-        className="mt-6 text-center transition-all duration-700 ease-out"
-        style={{
-          opacity: phase === 'text' ? 1 : 0,
-          transform: phase === 'text' ? 'translateY(0)' : 'translateY(12px)',
-        }}
-      >
-        <h1
-          className="text-3xl sm:text-4xl font-extrabold tracking-tight"
-          style={{ color: 'white', fontFamily: 'Nunito, sans-serif' }}
+      {(phase === 'logo' || phase === 'text') && (
+        <div
+          className="mt-6 text-center transition-all duration-700 ease-out"
+          style={{
+            opacity: phase === 'text' ? 1 : 0,
+            transform: phase === 'text' ? 'translateY(0)' : 'translateY(12px)',
+          }}
         >
-          Brilliant OS
-        </h1>
-        <p
-          className="text-sm sm:text-base mt-2 font-medium tracking-wide"
-          style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'Inter, sans-serif' }}
-        >
-          Code. Solve. Level Up.
-        </p>
-      </div>
+          <h1
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight"
+            style={{ color: 'white', fontFamily: 'Nunito, sans-serif' }}
+          >
+            Brilliant OS
+          </h1>
+          <p
+            className="text-sm sm:text-base mt-2 font-medium tracking-wide"
+            style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'Inter, sans-serif' }}
+          >
+            Code. Solve. Level Up.
+          </p>
+        </div>
+      )}
 
       {/* Subtle loading indicator */}
-      <div
-        className="absolute bottom-12 transition-opacity duration-500"
-        style={{ opacity: phase === 'text' ? 0.6 : 0 }}
-      >
-        <div className="w-8 h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.2)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{
-              background: 'rgba(255,255,255,0.7)',
-              animation: 'shimmer 1.2s ease-in-out infinite',
-              width: '60%',
-            }}
-          />
+      {phase !== 'exit' && (
+        <div
+          className="absolute bottom-12 transition-opacity duration-500"
+          style={{ opacity: phase === 'text' ? 0.6 : 0 }}
+        >
+          <div className="w-8 h-0.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.2)' }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                background: 'rgba(255,255,255,0.7)',
+                animation: 'shimmer 1.2s ease-in-out infinite',
+                width: '60%',
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

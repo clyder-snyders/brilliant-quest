@@ -130,11 +130,10 @@ function createLevels(): LevelData[] {
   // Level 14: Three Times
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 8; c++) g[0][c] = 0;
-    for (let c = 0; c < 8; c++) g[2][c] = 0;
-    for (let r = 0; r <= 2; r++) g[r][7] = 0;
-    g[0][0] = 3; g[2][0] = 2;
-    levels.push({ id:14, name:"Three Times", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:28, parCommands:4, availableCommands:zone2Commands, maxCommands:12, hint:"Use Repeat 3× with a turn-and-move pattern.", conceptTaught:"Repeat 3×" });
+    // Create a simple path with 3 straight segments where user can practice Repeat 3×
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[1,7],[2,7]]);
+    g[0][0] = 3; g[2][7] = 2;
+    levels.push({ id:14, name:"Three Times", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:28, parCommands:4, availableCommands:zone2Commands, maxCommands:12, hint:"Use Repeat 3× with move forwards to solve efficiently.", conceptTaught:"Repeat 3×" });
   })();
 
   // Level 15: The Pattern
@@ -149,9 +148,11 @@ function createLevels(): LevelData[] {
   // Level 16: Loop the Block
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[4,3],[4,2],[4,1],[3,1],[2,1]]);
-    g[1][1] = 3; g[2][1] = 2;
-    levels.push({ id:16, name:"Loop the Block", zone:2, gridSize:8, grid:g as any, robotStart:{x:1,y:1,direction:'right'}, parTime:40, parCommands:6, availableCommands:zone2Commands, maxCommands:14, hint:"Walk a square loop — Repeat 4×: move forward 3, turn right.", conceptTaught:"Repeat 4× with Turn" });
+    // Perfect square loop: 1-4 right, 4-7 down, 7-4 left, 4-1 up  
+    setPath(g, [[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[7,3],[7,2],[7,1],[6,1],[5,1],[4,1],[3,1],[2,1]]);
+    g[1][1] = 3; // Start
+    g[2][1] = 2; // Goal is one cell to the right after the loop
+    levels.push({ id:16, name:"Loop the Block", zone:2, gridSize:8, grid:g as any, robotStart:{x:1,y:1,direction:'right'}, parTime:50, parCommands:6, availableCommands:zone2Commands, maxCommands:14, hint:"Walk around the block — use Repeat 4×: move forward 3, turn right.", conceptTaught:"Repeat 4× with Turn" });
   })();
 
   // Level 17: Repeat Until

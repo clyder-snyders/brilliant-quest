@@ -9,6 +9,7 @@ const KEYS = {
   streak: 'brilliantOS_streak',
   lastPlayDate: 'brilliantOS_lastPlayDate',
   leaderboard: 'brilliantOS_leaderboard',
+  profileExists: 'brilliantOS_profileExists',
 };
 
 /**
@@ -90,6 +91,31 @@ export function loadGameState(): Partial<GameState> {
 export function savePlayerProfile(name: string, avatar: AvatarId) {
   localStorage.setItem(KEYS.playerName, name);
   localStorage.setItem(KEYS.avatar, avatar);
+  localStorage.setItem(KEYS.profileExists, 'true');
+}
+
+export function hasProfile(): boolean {
+  try {
+    const playerName = localStorage.getItem(KEYS.playerName);
+    return !!playerName && playerName.trim().length > 0;
+  } catch (error) {
+    console.error('[Storage Error] Failed to check profile:', error);
+    return false;
+  }
+}
+
+export function deleteProfile() {
+  try {
+    localStorage.removeItem(KEYS.playerName);
+    localStorage.removeItem(KEYS.avatar);
+    localStorage.removeItem(KEYS.profileExists);
+    localStorage.removeItem(KEYS.levelProgress);
+    localStorage.removeItem(KEYS.totalStars);
+    localStorage.removeItem(KEYS.streak);
+    localStorage.removeItem(KEYS.lastPlayDate);
+  } catch (error) {
+    console.error('[Storage Error] Failed to delete profile:', error);
+  }
 }
 
 export function saveLevelProgress(levelId: number, progress: LevelProgress, allProgress: Record<number, LevelProgress>, practiceMode: boolean = false) {

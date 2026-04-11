@@ -6,7 +6,7 @@ import { Direction, TileType } from '../game/types';
 import { calculateScore } from '../game/storage';
 import { validateLevelData } from '../game/validation';
 import { GAME_CONFIG } from '../game/constants';
-import { IconTimer, IconCode, IconGrid, IconList } from '../components/Icons';
+import { IconTimer, IconCode } from '../components/Icons';
 
 const TILE_CLASSES: Record<number, { bg: string }> = {
   0: { bg: '#FFFFFF' },
@@ -94,7 +94,6 @@ export default function GameScreen() {
   const [wallHitAnim, setWallHitAnim] = useState(false);
   const [message, setMessage] = useState('');
   const [failureReason, setFailureReason] = useState('');
-  const [mobileTab, setMobileTab] = useState<'grid' | 'commands'>('grid');
   const timerRef = useRef<number | null>(null);
   const timerValueRef = useRef(0);
   const runningRef = useRef(false);
@@ -660,31 +659,7 @@ export default function GameScreen() {
         </div>
       </div>
 
-      {/* Mobile Tab Selector */}
-      <div className="flex md:hidden border-b" style={{ borderColor: 'hsl(214, 32%, 91%)' }}>
-        <button
-          className="flex-1 py-2 text-xs font-bold text-center"
-          style={{
-            background: mobileTab === 'grid' ? 'hsl(217, 91%, 97%)' : 'white',
-            color: mobileTab === 'grid' ? 'hsl(217, 91%, 60%)' : 'hsl(215, 16%, 47%)',
-            borderBottom: mobileTab === 'grid' ? '2px solid hsl(217, 91%, 60%)' : '2px solid transparent',
-          }}
-          onClick={() => setMobileTab('grid')}
-        >
-          <span className="flex items-center gap-1"><IconGrid size={14} /> Grid</span>
-        </button>
-        <button
-          className="flex-1 py-2 text-xs font-bold text-center"
-          style={{
-            background: mobileTab === 'commands' ? 'hsl(217, 91%, 97%)' : 'white',
-            color: mobileTab === 'commands' ? 'hsl(217, 91%, 60%)' : 'hsl(215, 16%, 47%)',
-            borderBottom: mobileTab === 'commands' ? '2px solid hsl(217, 91%, 60%)' : '2px solid transparent',
-          }}
-          onClick={() => setMobileTab('commands')}
-        >
-          <span className="flex items-center gap-1"><IconList size={14} /> Commands ({sequence.length})</span>
-        </button>
-      </div>
+
 
       {/* Desktop: 3-column layout */}
       <div className="flex-1 hidden md:flex overflow-hidden">
@@ -732,48 +707,36 @@ export default function GameScreen() {
         </div>
       </div>
 
-      {/* Mobile Layout */}
-      <div className="flex-1 flex flex-col md:hidden overflow-hidden">
-        {mobileTab === 'grid' ? (
-          <div className="flex-1 flex flex-col items-center justify-center overflow-auto p-2">
-            {renderGrid(mobileCellSize)}
+      {/* Mobile Layout - Vertical Stack */}
+      <div className="flex-1 flex flex-col md:hidden overflow-auto">
+        {/* Mobile Grid - Smaller and at Top */}
+        <div className="flex justify-center py-2 px-2 shrink-0" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
+          {renderGrid(mobileCellSize)}
+        </div>
 
-            {isRunning && currentStep >= 0 && (
-              <div className="mt-2 w-full max-w-xs">
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(220, 33%, 95%)' }}>
-                  <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((currentStep + 1) / sequence.length) * 100}%`, background: 'hsl(217, 91%, 60%)' }} />
-                </div>
-              </div>
-            )}
-
-            {message && (
-              <div className="mt-2 p-2 rounded-xl text-xs text-center max-w-xs" style={{ background: 'hsl(25, 95%, 95%)', color: 'hsl(25, 95%, 40%)' }}>
-                <p className="font-bold">{message}</p>
-                {failureReason && <p className="mt-1">{failureReason}</p>}
-              </div>
-            )}
-
-            {/* Quick action bar on grid tab */}
-            <div className="mt-2 flex gap-2 w-full max-w-xs">
-              {!isRunning ? (
-                <>
-                  <button className="btn-primary text-xs py-2 flex-1" onClick={runSequence} disabled={sequence.length === 0} style={{ opacity: sequence.length === 0 ? 0.5 : 1 }}>
-                    ▶ Run ({sequence.length})
-                  </button>
-                  <button className="btn-secondary text-xs py-2 px-3" onClick={handleReset}>↺</button>
-                </>
-              ) : (
-                <button className="btn-primary text-xs py-2 flex-1" onClick={() => { runningRef.current = false; setIsRunning(false); }} style={{ background: 'hsl(0, 84%, 60%)', borderColor: 'hsl(0, 84%, 60%)' }}>
-                  ⏹ Stop
-                </button>
-              )}
+        {/* Mobile Progress Bar */}
+        {isRunning && currentStep >= 0 && (
+          <div className="shrink-0 px-2 py-2" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(220, 33%, 95%)' }}>
+              <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((currentStep + 1) / sequence.length) * 100}%`, background: 'hsl(217, 91%, 60%)' }} />
             </div>
           </div>
-        ) : (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {renderCommands()}
+        )}
+
+        {/* Mobile Message */}
+        {message && (
+          <div className="shrink-0 px-2 py-2" style={{ background: 'hsl(25, 95%, 95%)', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
+            <div className="text-xs text-center rounded-lg p-2" style={{ color: 'hsl(25, 95%, 40%)' }}>
+              <p className="font-bold">{message}</p>
+              {failureReason && <p className="mt-1">{failureReason}</p>}
+            </div>
           </div>
         )}
+
+        {/* Mobile Commands Panel - Takes Remaining Space */}
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          {renderCommands()}
+        </div>
       </div>
     </div>
   );
