@@ -39,9 +39,9 @@ function createLevels(): LevelData[] {
   // Level 3: Turn Left — L-shaped path left
   (() => {
     const g = fillGrid(6, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4],[0,5]]);
-    g[2][0] = 3; g[0][5] = 2;
-    levels.push({ id:3, name:"Turn Left", zone:1, gridSize:6, grid:g as any, robotStart:{x:2,y:0,direction:'right'}, parTime:22, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Move right, turn left, then continue to the goal.", conceptTaught:"Turn Left" });
+    setPath(g, [[0,0],[0,1],[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5]]);
+    g[0][0] = 3; g[4][5] = 2;
+    levels.push({ id:3, name:"Turn Left", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:40, parCommands:17, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:18, hint:"Alternate between moving and turning left. 9 moves with 8 directional changes.", conceptTaught:"Turn Left" });
   })();
 
   // Level 4: The Corner — 2-turn path
@@ -73,7 +73,7 @@ function createLevels(): LevelData[] {
     const g = fillGrid(6, 1);
     setPath(g, [[0,0],[0,1],[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5]]);
     g[0][0] = 3; g[4][5] = 2;
-    levels.push({ id:7, name:"Zigzag", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:40, parCommands:13, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Alternate between moving forward and turning for the zigzag.", conceptTaught:"Multi-step Sequencing" });
+    levels.push({ id:7, name:"Zigzag", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:45, parCommands:17, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:18, hint:"Alternate between moving forward and turning for the zigzag.", conceptTaught:"Multi-step Sequencing" });
   })();
 
   // Level 8: Around the Block
