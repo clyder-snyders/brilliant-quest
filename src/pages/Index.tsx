@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { GameProvider, useGame } from '../game/GameContext';
 import { FeedbackButton } from '../components/FeedbackButton';
+import SplashScreen from '../screens/SplashScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import SetupScreen from '../screens/SetupScreen';
 import LevelMapScreen from '../screens/LevelMapScreen';
@@ -10,6 +11,9 @@ import AboutScreen from '../screens/AboutScreen';
 
 function GameRouter() {
   const { state } = useGame();
+  const [showSplash, setShowSplash] = useState(true);
+
+  const handleSplashComplete = useCallback(() => setShowSplash(false), []);
 
   const screenMap: Record<string, React.ReactNode> = {
     welcome: <WelcomeScreen />,
@@ -22,6 +26,7 @@ function GameRouter() {
 
   return (
     <>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <div className="min-h-screen">
         {screenMap[state.currentScreen] || <WelcomeScreen />}
       </div>

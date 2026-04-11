@@ -4,6 +4,7 @@ import { levelData } from '../game/levels';
 import { addToLeaderboard } from '../game/storage';
 import { GAME_CONFIG } from '../game/constants';
 import { isValidLevelId } from '../game/validation';
+import { IconStar, IconStarEmpty, IconTimer, IconCode, IconTrophy, IconWallHit, IconCheck, IconLightbulb } from '../components/Icons';
 
 const CONFETTI_COLORS = {
   gold: ['#FBBF24', '#F59E0B', '#D97706'],
@@ -112,16 +113,16 @@ export default function ResultScreen() {
         {success ? (
           <>
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-slow" style={{ background: 'hsl(168, 76%, 40%)' }}>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="white"><path d="M8 16l6 6 10-12" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              <IconCheck size={32} color="white" />
             </div>
 
-            <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Level Complete! 🎉</h2>
+            <h2 className="text-2xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Level Complete!</h2>
             <p className="text-sm mb-6" style={{ color: 'hsl(215, 16%, 47%)' }}>Level {level.id} — {level.name}</p>
 
             <div className="flex justify-center gap-4 mb-2">
               {[0, 1, 2].map(i => (
-                <span key={i} className={`text-4xl ${showStars[i] ? 'animate-star-pop' : ''}`} style={{ opacity: showStars[i] ? 1 : 0.2 }}>
-                  {i < stars ? '⭐' : '☆'}
+                <span key={i} className={`${showStars[i] ? 'animate-star-pop' : ''}`} style={{ opacity: showStars[i] ? 1 : 0.2 }}>
+                  {i < stars ? <IconStar size={36} /> : <IconStarEmpty size={36} color="hsl(215, 16%, 67%)" />}
                 </span>
               ))}
             </div>
@@ -129,12 +130,12 @@ export default function ResultScreen() {
 
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
-                <p className="text-lg mb-0.5">⏱</p>
+                <IconTimer size={20} color="hsl(217, 91%, 60%)" className="mx-auto mb-1" />
                 <p className="font-bold text-sm" style={{ color: 'hsl(217, 33%, 17%)' }}>{time}s</p>
                 <p className="text-xs" style={{ color: 'hsl(215, 16%, 47%)' }}>Time</p>
               </div>
               <div className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
-                <p className="text-lg mb-0.5">📝</p>
+                <IconCode size={20} color="hsl(217, 91%, 60%)" className="mx-auto mb-1" />
                 <p className="font-bold text-sm" style={{ color: 'hsl(217, 33%, 17%)' }}>
                   You used {pluralize(commandsUsed, 'command')}
                 </p>
@@ -143,19 +144,20 @@ export default function ResultScreen() {
                 </p>
               </div>
               <div className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
-                <p className="text-lg mb-0.5">🏆</p>
+                <IconTrophy size={20} color="hsl(217, 91%, 60%)" className="mx-auto mb-1" />
                 <p className="font-bold text-lg" style={{ color: 'hsl(217, 91%, 60%)' }}>{score.toLocaleString()} pts</p>
                 <p className="text-xs" style={{ color: 'hsl(215, 16%, 47%)' }}>Score</p>
               </div>
               <div className="p-3 rounded-xl" style={{ background: 'hsl(220, 33%, 95%)' }}>
-                <p className="text-lg mb-0.5">💥</p>
+                <IconWallHit size={20} color="hsl(217, 91%, 60%)" className="mx-auto mb-1" />
                 <p className="font-bold text-sm" style={{ color: 'hsl(217, 33%, 17%)' }}>{progress?.bestWallHits || 0}</p>
                 <p className="text-xs" style={{ color: 'hsl(215, 16%, 47%)' }}>Wall Hits</p>
               </div>
             </div>
 
             <div className="inline-flex items-center gap-1 px-4 py-2 rounded-full mb-6 text-sm font-bold" style={{ background: 'hsl(168, 76%, 92%)', color: 'hsl(168, 76%, 30%)' }}>
-              ✓ {level.conceptTaught} Mastered
+              <IconCheck size={14} color="hsl(168, 76%, 30%)" />
+              {level.conceptTaught} Mastered
             </div>
           </>
         ) : (
@@ -169,8 +171,9 @@ export default function ResultScreen() {
               You didn't complete all the required steps.
             </p>
 
-            <div className="p-4 rounded-xl mb-6" style={{ background: 'hsl(43, 96%, 95%)', color: 'hsl(43, 96%, 30%)' }}>
-              <p className="text-sm">💡 <strong>Tip:</strong> Check your turn commands and make sure you have enough moves to reach the goal.</p>
+            <div className="p-4 rounded-xl mb-6 flex items-start gap-2" style={{ background: 'hsl(43, 96%, 95%)', color: 'hsl(43, 96%, 30%)' }}>
+              <IconLightbulb size={18} color="hsl(43, 96%, 40%)" className="shrink-0 mt-0.5" />
+              <p className="text-sm"><strong>Tip:</strong> Check your turn commands and make sure you have enough moves to reach the goal.</p>
             </div>
           </>
         )}
@@ -179,7 +182,7 @@ export default function ResultScreen() {
           {success ? (
             <>
               <button className="btn-primary w-full py-3" onClick={nextLevel}>
-                {state.currentLevel >= 50 ? 'All Done! 🎉' : 'Next Level →'}
+                {state.currentLevel >= 50 ? 'All Done!' : 'Next Level'}
               </button>
               <button className="btn-secondary w-full py-3" onClick={replay}>Replay</button>
             </>
