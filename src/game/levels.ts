@@ -41,7 +41,7 @@ function createLevels(): LevelData[] {
     const g = fillGrid(6, 1);
     setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4],[0,5]]);
     g[2][0] = 3; g[0][5] = 2;
-    levels.push({ id:3, name:"Turn Left", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:2,direction:'right'}, parTime:22, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Move right, turn left, then continue to the goal.", conceptTaught:"Turn Left" });
+    levels.push({ id:3, name:"Turn Left", zone:1, gridSize:6, grid:g as any, robotStart:{x:2,y:0,direction:'right'}, parTime:22, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Move right, turn left, then continue to the goal.", conceptTaught:"Turn Left" });
   })();
 
   // Level 4: The Corner — 2-turn path
@@ -73,7 +73,7 @@ function createLevels(): LevelData[] {
     const g = fillGrid(6, 1);
     setPath(g, [[0,0],[0,1],[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5]]);
     g[0][0] = 3; g[4][5] = 2;
-    levels.push({ id:7, name:"Zigzag", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:35, parCommands:8, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Alternate between moving forward and turning for the zigzag.", conceptTaught:"Multi-step Sequencing" });
+    levels.push({ id:7, name:"Zigzag", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:40, parCommands:13, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Alternate between moving forward and turning for the zigzag.", conceptTaught:"Multi-step Sequencing" });
   })();
 
   // Level 8: Around the Block
@@ -89,7 +89,7 @@ function createLevels(): LevelData[] {
     const g = fillGrid(6, 1);
     setPath(g, [[1,0],[1,1],[1,2],[2,2],[3,2],[3,3],[3,4],[2,4],[1,4],[1,5]]);
     g[1][0] = 3; g[1][5] = 2;
-    levels.push({ id:9, name:"Narrow Pass", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:1,direction:'right'}, parTime:30, parCommands:6, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Navigate through the narrow corridor carefully.", conceptTaught:"Precision Movement" });
+    levels.push({ id:9, name:"Narrow Pass", zone:1, gridSize:6, grid:g as any, robotStart:{x:1,y:0,direction:'right'}, parTime:30, parCommands:6, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Navigate through the narrow corridor carefully.", conceptTaught:"Precision Movement" });
   })();
 
   // Level 10: The S-Bend
