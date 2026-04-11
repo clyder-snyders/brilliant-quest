@@ -534,7 +534,7 @@ export default function GameScreen() {
                   <polygon points="6,3 16,7 6,11" fill="hsl(168, 76%, 40%)" />
                 </svg>
               )}
-              {cell === 5 && <span className="text-xs animate-pulse-slow">✨</span>}
+              {cell === 5 && <span className="text-xs animate-pulse-slow"><svg width="12" height="12" viewBox="0 0 24 24" fill="hsl(43, 96%, 56%)"><path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5L12 2z" /></svg></span>}
               {isRobot && (
                 <div
                   className={`absolute z-10 transition-all duration-300 ease-in-out ${wallHitAnim ? 'animate-wall-hit' : ''}`}
@@ -655,7 +655,7 @@ export default function GameScreen() {
           {state.practiceMode && <span className="ml-1 px-1.5 py-0.5 rounded text-xs font-bold" style={{ background: 'hsl(25, 95%, 93%)', color: 'hsl(25, 95%, 53%)' }}>P</span>}
         </div>
         <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-          <span style={{ color: timer > level.parTime * 2 ? 'hsl(0, 84%, 60%)' : 'hsl(215, 16%, 47%)' }}>⏱ {formatTime(timer)}</span>
+          <span className="flex items-center gap-1" style={{ color: timer > level.parTime * 2 ? 'hsl(0, 84%, 60%)' : 'hsl(215, 16%, 47%)' }}><IconTimer size={14} /> {formatTime(timer)}</span>
           <span style={{ color: 'hsl(215, 16%, 47%)' }}>{sequence.length}/{level.maxCommands}</span>
         </div>
       </div>
@@ -671,7 +671,7 @@ export default function GameScreen() {
           }}
           onClick={() => setMobileTab('grid')}
         >
-          🎮 Grid
+          <span className="flex items-center gap-1"><IconGrid size={14} /> Grid</span>
         </button>
         <button
           className="flex-1 py-2 text-xs font-bold text-center"
@@ -682,7 +682,7 @@ export default function GameScreen() {
           }}
           onClick={() => setMobileTab('commands')}
         >
-          📝 Commands ({sequence.length})
+          <span className="flex items-center gap-1"><IconList size={14} /> Commands ({sequence.length})</span>
         </button>
       </div>
 
@@ -698,10 +698,10 @@ export default function GameScreen() {
             <p className="text-xs italic mt-1" style={{ color: 'hsl(215, 16%, 47%)' }}>Guide your robot to the goal tile</p>
           </div>
           <div className="text-xs space-y-1 mb-4" style={{ color: 'hsl(215, 16%, 47%)' }}>
-            <p>⏱ Par: {level.parTime}s</p>
-            <p>📝 Par: {level.parCommands} {level.parCommands === 1 ? 'command' : 'commands'}</p>
-            <p>📋 Max: {level.maxCommands} {level.maxCommands === 1 ? 'command' : 'commands'}</p>
-            <p>💡 Concept: {level.conceptTaught}</p>
+            <p className="flex items-center gap-1"><IconTimer size={12} /> Par: {level.parTime}s</p>
+            <p className="flex items-center gap-1"><IconCode size={12} /> Par: {level.parCommands} {level.parCommands === 1 ? 'command' : 'commands'}</p>
+            <p className="flex items-center gap-1"><IconCode size={12} /> Max: {level.maxCommands} {level.maxCommands === 1 ? 'command' : 'commands'}</p>
+            <p>Concept: {level.conceptTaught}</p>
           </div>
         </div>
 
