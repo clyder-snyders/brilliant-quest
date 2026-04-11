@@ -6,6 +6,7 @@ import { Direction, TileType } from '../game/types';
 import { calculateScore } from '../game/storage';
 import { validateLevelData } from '../game/validation';
 import { GAME_CONFIG } from '../game/constants';
+import { IconTimer, IconCode, IconGrid, IconList } from '../components/Icons';
 
 const TILE_CLASSES: Record<number, { bg: string }> = {
   0: { bg: '#FFFFFF' },
