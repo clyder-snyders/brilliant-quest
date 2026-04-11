@@ -3,6 +3,7 @@ import { useGame } from '../game/GameContext';
 import { AvatarDisplay } from '../game/avatars';
 import { levelData } from '../game/levels';
 import { getRankTitle, getLeaderboard, clearLeaderboard } from '../game/storage';
+import { IconStar, IconStarEmpty, IconTrophy, IconFlame, IconTarget, IconCheck, IconLock } from '../components/Icons';
 
 const zones = [
   { id: 1, name: 'Easy — Foundations', range: 'Levels 1–12', color: 'hsl(168, 76%, 40%)', gradientFrom: '#14B8A6', gradientTo: '#0D9488' },
@@ -22,26 +23,20 @@ const ZoneIcon = ({ zone }: { zone: number }) => {
   }
 };
 
-// Generate daily challenge based on date
 function getDailyChallenge(): { levelId: number; dateKey: string } {
   const today = new Date();
   const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  // Use a deterministic seed from date
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
   const levelId = (seed % levelData.length) + 1;
   return { levelId, dateKey };
 }
 
 function isDailyChallengeCompleted(dateKey: string): boolean {
-  try {
-    return localStorage.getItem(`brilliantOS_daily_${dateKey}`) === 'true';
-  } catch { return false; }
+  try { return localStorage.getItem(`brilliantOS_daily_${dateKey}`) === 'true'; } catch { return false; }
 }
 
 function completeDailyChallenge(dateKey: string) {
-  try {
-    localStorage.setItem(`brilliantOS_daily_${dateKey}`, 'true');
-  } catch {}
+  try { localStorage.setItem(`brilliantOS_daily_${dateKey}`, 'true'); } catch {}
 }
 
 export default function LevelMapScreen() {
@@ -82,8 +77,12 @@ export default function LevelMapScreen() {
     return (
       <div className="min-h-screen" style={{ background: 'hsl(220, 27%, 98%)' }}>
         <div className="sticky top-0 z-10 flex items-center h-14 px-4 border-b" style={{ background: 'white', borderColor: 'hsl(214, 32%, 91%)' }}>
-          <button className="btn-secondary py-2 px-3 text-sm" onClick={() => setShowLeaderboard(false)}>← Back</button>
-          <h2 className="flex-1 text-center font-bold text-lg">🏆 Leaderboard</h2>
+          <button className="btn-secondary py-2 px-3 text-sm" onClick={() => setShowLeaderboard(false)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <h2 className="flex-1 text-center font-bold text-lg flex items-center justify-center gap-2">
+            <IconTrophy size={20} color="hsl(43, 96%, 56%)" /> Leaderboard
+          </h2>
           <div className="w-16" />
         </div>
         <div className="max-w-[600px] mx-auto p-4">
@@ -96,7 +95,7 @@ export default function LevelMapScreen() {
                   <span className="font-bold text-lg w-8 text-center" style={{ color: i < 3 ? 'hsl(43, 96%, 56%)' : 'hsl(215, 16%, 47%)' }}>#{i + 1}</span>
                   <AvatarDisplay avatarId={e.avatar} size={32} />
                   <span className="font-bold flex-1 truncate">{e.name}</span>
-                  <span className="text-sm" style={{ color: 'hsl(215, 16%, 47%)' }}>⭐ {e.totalStars}</span>
+                  <span className="text-sm flex items-center gap-1" style={{ color: 'hsl(215, 16%, 47%)' }}><IconStar size={14} /> {e.totalStars}</span>
                   <span className="font-bold" style={{ color: 'hsl(217, 91%, 60%)' }}>{e.totalScore.toLocaleString()} pts</span>
                 </div>
               ))}
@@ -114,24 +113,27 @@ export default function LevelMapScreen() {
       {showDailyChallenge && dailyLevel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowDailyChallenge(false)}>
           <div className="game-card w-full max-w-[400px] text-center" onClick={e => e.stopPropagation()}>
-            <div className="text-4xl mb-3">🎯</div>
+            <IconTarget size={40} color="hsl(217, 91%, 60%)" className="mx-auto mb-3" />
             <h2 className="text-xl font-extrabold mb-1" style={{ color: 'hsl(217, 33%, 17%)' }}>Daily Challenge</h2>
             <p className="text-sm mb-4" style={{ color: 'hsl(215, 16%, 47%)' }}>{dailyChallenge.dateKey}</p>
 
             <div className="p-4 rounded-xl mb-4" style={{ background: 'hsl(220, 33%, 95%)' }}>
               <p className="font-bold text-lg" style={{ color: 'hsl(217, 33%, 17%)' }}>Level {dailyLevel.id}: {dailyLevel.name}</p>
-              <p className="text-sm mt-1" style={{ color: 'hsl(215, 16%, 47%)' }}>Zone {dailyLevel.zone} • {dailyLevel.conceptTaught}</p>
+              <p className="text-sm mt-1" style={{ color: 'hsl(215, 16%, 47%)' }}>Zone {dailyLevel.zone} — {dailyLevel.conceptTaught}</p>
               <p className="text-xs mt-2" style={{ color: 'hsl(215, 16%, 47%)' }}>
-                Par: {dailyLevel.parTime}s • {dailyLevel.parCommands} {dailyLevel.parCommands === 1 ? 'command' : 'commands'}
+                Par: {dailyLevel.parTime}s — {dailyLevel.parCommands} {dailyLevel.parCommands === 1 ? 'command' : 'commands'}
               </p>
             </div>
 
-            {dailyCompleted ? (
-              <div className="p-3 rounded-xl mb-4" style={{ background: 'hsl(168, 76%, 92%)', color: 'hsl(168, 76%, 30%)' }}>
-                <p className="font-bold">✅ Completed today!</p>
-                <p className="text-xs mt-1">Come back tomorrow for a new challenge.</p>
+            {dailyCompleted && (
+              <div className="p-3 rounded-xl mb-4 flex items-center justify-center gap-2" style={{ background: 'hsl(168, 76%, 92%)', color: 'hsl(168, 76%, 30%)' }}>
+                <IconCheck size={16} color="hsl(168, 76%, 30%)" />
+                <div>
+                  <p className="font-bold">Completed today!</p>
+                  <p className="text-xs mt-0.5">Come back tomorrow for a new challenge.</p>
+                </div>
               </div>
-            ) : null}
+            )}
 
             <button className="btn-primary w-full py-3 mb-2" onClick={startDailyChallenge}>
               {dailyCompleted ? 'Play Again' : 'Start Challenge'}
@@ -154,8 +156,8 @@ export default function LevelMapScreen() {
           </span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
-          <span className="text-sm font-bold">⭐ {state.totalStars}</span>
-          <span className="text-sm font-bold">🔥 {state.streak}</span>
+          <span className="text-sm font-bold flex items-center gap-1"><IconStar size={14} /> {state.totalStars}</span>
+          <span className="text-sm font-bold flex items-center gap-1"><IconFlame size={14} color="hsl(25, 95%, 53%)" /> {state.streak}</span>
         </div>
       </div>
 
@@ -164,10 +166,12 @@ export default function LevelMapScreen() {
         {state.practiceMode && (
           <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'hsl(25, 95%, 93%)', color: 'hsl(25, 95%, 53%)' }}>PRACTICE</span>
         )}
-        <button className="btn-secondary py-1.5 px-3 text-xs" onClick={() => setShowDailyChallenge(true)}>
-          🎯 Daily Challenge {dailyCompleted ? '✅' : ''}
+        <button className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1" onClick={() => setShowDailyChallenge(true)}>
+          <IconTarget size={14} /> Daily Challenge {dailyCompleted ? <IconCheck size={12} color="hsl(168, 76%, 40%)" /> : null}
         </button>
-        <button className="btn-secondary py-1.5 px-3 text-xs" onClick={() => setShowLeaderboard(true)}>🏆 Leaderboard</button>
+        <button className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1" onClick={() => setShowLeaderboard(true)}>
+          <IconTrophy size={14} /> Leaderboard
+        </button>
       </div>
 
       {/* Zone sections */}
@@ -188,7 +192,7 @@ export default function LevelMapScreen() {
 
               {!accessible ? (
                 <div className="flex items-center justify-center gap-2 py-8 rounded-[20px] text-sm" style={{ background: 'hsl(220, 33%, 95%)', color: 'hsl(215, 16%, 47%)' }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="9" width="12" height="8" rx="2" /><path d="M7 9V6a3 3 0 016 0v3" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+                  <IconLock size={18} />
                   Complete Zone {zone.id - 1} to unlock
                 </div>
               ) : (
@@ -217,7 +221,11 @@ export default function LevelMapScreen() {
                             <span className="font-bold text-lg md:text-xl" style={{ color: 'hsl(217, 33%, 17%)' }}>{level.id}</span>
                             <div className="flex gap-0.5 my-0.5">
                               {[1, 2, 3].map(s => (
-                                <span key={s} className="text-xs md:text-sm">{progress && progress.stars >= s ? '⭐' : '☆'}</span>
+                                <span key={s}>
+                                  {progress && progress.stars >= s
+                                    ? <IconStar size={14} />
+                                    : <IconStarEmpty size={14} color="hsl(215, 16%, 67%)" />}
+                                </span>
                               ))}
                             </div>
                             {progress?.bestTime ? (
@@ -225,7 +233,7 @@ export default function LevelMapScreen() {
                             ) : null}
                           </>
                         ) : (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="hsl(215, 16%, 67%)"><rect x="6" y="11" width="12" height="9" rx="2" /><path d="M9 11V8a3 3 0 016 0v3" fill="none" stroke="hsl(215, 16%, 67%)" strokeWidth="1.5" /></svg>
+                          <IconLock size={20} color="hsl(215, 16%, 67%)" />
                         )}
                       </button>
                     );

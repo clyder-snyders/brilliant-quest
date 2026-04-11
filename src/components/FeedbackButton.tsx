@@ -1,48 +1,26 @@
 import React, { useState } from 'react';
+import { IconMail, IconSend, IconX } from './Icons';
+
+const FEEDBACK_EMAIL = 'clydesnyders17@gmail.com';
 
 export function FeedbackButton() {
   const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
   const [feedback, setFeedback] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [category, setCategory] = useState('general');
 
-  const handleSubmit = async () => {
-    if (!feedback.trim()) {
-      alert('Please enter feedback before submitting');
-      return;
-    }
+  const handleSubmit = () => {
+    if (!feedback.trim()) return;
 
-    try {
-      // Create a simple data string to send
-      const feedbackData = {
-        message: feedback,
-        timestamp: new Date().toISOString(),
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-      };
+    const subject = encodeURIComponent(`[Brilliant OS Feedback] ${category.charAt(0).toUpperCase() + category.slice(1)}`);
+    const body = encodeURIComponent(
+      `Hi Brilliant OS Team,\n\n${feedback.trim()}\n\n---\nFrom: ${name.trim() || 'Anonymous'}\nCategory: ${category}\nPage: ${window.location.href}\nDate: ${new Date().toLocaleString()}`
+    );
 
-      // Log to browser console (for development)
-      console.log('Feedback submitted:', feedbackData);
-
-      // Option: Send to a webhook service like Discord, Telegram, or email service
-      // Example using Discord webhook (you would need to set this up):
-      // await fetch('YOUR_DISCORD_WEBHOOK_URL', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     content: `**New Feedback**\n${feedback}\n\nTime: ${new Date().toLocaleString()}`
-      //   })
-      // });
-
-      setSubmitted(true);
-      setTimeout(() => {
-        setShowForm(false);
-        setSubmitted(false);
-        setFeedback('');
-      }, 2000);
-    } catch (e) {
-      console.error('Feedback submission failed', e);
-      alert('Failed to submit feedback. Please try again.');
-    }
+    window.open(`mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`, '_self');
+    setShowForm(false);
+    setFeedback('');
+    setName('');
   };
 
   return (
@@ -50,55 +28,82 @@ export function FeedbackButton() {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 py-3 rounded-full shadow-lg font-semibold transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
-          title="Send us your feedback!"
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full font-bold text-sm transition-all duration-200 hover:scale-105"
+          style={{
+            background: 'hsl(217, 91%, 60%)',
+            color: 'white',
+            boxShadow: '0 4px 20px rgba(59,130,246,0.35)',
+            fontFamily: 'Nunito, sans-serif',
+          }}
         >
-          <span>📝</span> Feedback
+          <IconMail size={18} color="white" />
+          Feedback
         </button>
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full animate-fade-in-up">
-            {submitted ? (
-              <div className="text-center">
-                <div className="text-4xl mb-3">✅</div>
-                <h3 className="font-bold text-lg text-green-600">Thank you!</h3>
-                <p className="text-gray-600 text-sm mt-1">Your feedback helps us improve</p>
-              </div>
-            ) : (
-              <>
-                <h3 className="font-bold text-lg mb-2">Help us improve! 🚀</h3>
-                <p className="text-sm text-gray-600 mb-4">Found a bug? Have a feature request? Let us know!</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="game-card w-full max-w-sm animate-fade-in-up">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-extrabold" style={{ color: 'hsl(217, 33%, 17%)', fontFamily: 'Nunito, sans-serif' }}>
+                Send Feedback
+              </h3>
+              <button onClick={() => setShowForm(false)} className="p-1 rounded-lg transition-colors hover:bg-[hsl(220,33%,95%)]">
+                <IconX size={20} color="hsl(215, 16%, 47%)" />
+              </button>
+            </div>
 
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="What should we improve? Any bugs or ideas?"
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg mb-4 text-sm focus:border-blue-500 focus:outline-none resize-none"
-                  rows={4}
-                />
+            <p className="text-sm mb-4" style={{ color: 'hsl(215, 16%, 47%)' }}>
+              Your feedback is sent directly via email. We read every message.
+            </p>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleSubmit}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition-colors"
-                  >
-                    Send Feedback
-                  </button>
-                  <button
-                    onClick={() => setShowForm(false)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Your name (optional)"
+              className="w-full px-3 py-2.5 rounded-xl text-sm mb-3 outline-none transition-colors"
+              style={{ border: '2px solid hsl(214, 32%, 91%)', background: 'white', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => (e.target.style.borderColor = 'hsl(217, 91%, 60%)')}
+              onBlur={e => (e.target.style.borderColor = 'hsl(214, 32%, 91%)')}
+            />
 
-                <p className="text-xs text-gray-500 mt-3 text-center">
-                  Your feedback is valuable and will be reviewed
-                </p>
-              </>
-            )}
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl text-sm mb-3 outline-none"
+              style={{ border: '2px solid hsl(214, 32%, 91%)', background: 'white', fontFamily: 'Inter, sans-serif', color: 'hsl(217, 33%, 17%)' }}
+            >
+              <option value="general">General Feedback</option>
+              <option value="bug">Bug Report</option>
+              <option value="feature">Feature Request</option>
+              <option value="education">Education / Classroom Use</option>
+            </select>
+
+            <textarea
+              value={feedback}
+              onChange={e => setFeedback(e.target.value)}
+              placeholder="Tell us what you think..."
+              className="w-full px-3 py-2.5 rounded-xl text-sm mb-4 outline-none resize-none"
+              rows={4}
+              style={{ border: '2px solid hsl(214, 32%, 91%)', background: 'white', fontFamily: 'Inter, sans-serif' }}
+              onFocus={e => (e.target.style.borderColor = 'hsl(217, 91%, 60%)')}
+              onBlur={e => (e.target.style.borderColor = 'hsl(214, 32%, 91%)')}
+            />
+
+            <button
+              onClick={handleSubmit}
+              disabled={!feedback.trim()}
+              className="btn-primary w-full py-3 flex items-center justify-center gap-2"
+              style={{ opacity: !feedback.trim() ? 0.5 : 1 }}
+            >
+              <IconSend size={16} color="white" />
+              Send via Email
+            </button>
+
+            <p className="text-xs mt-3 text-center" style={{ color: 'hsl(215, 16%, 47%)' }}>
+              Opens your email client to send to our team
+            </p>
           </div>
         </div>
       )}
