@@ -8,35 +8,24 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Brilliant OS" />
     <meta name="theme-color" content="#3B82F6" />
-    <meta name="color-scheme" content="light dark" />
     
     <title>Brilliant OS — Learn Programming Through Play</title>
-    <meta name="description" content="Master programming concepts through 50 interactive coding puzzles. Learn sequencing, loops, conditionals, functions, and more. Perfect for students aged 8-18. Offline-playable PWA." />
-    <meta name="author" content="Brilliant OS" />
-    <meta name="application-name" content="Brilliant OS" />
+    <meta name="description" content="Master programming concepts through 50 interactive coding puzzles. Learn sequencing, loops, conditionals, functions, and more. Perfect for students aged 8-18." />
     
     <meta property="og:title" content="Brilliant OS — Learn Programming Through Play" />
-    <meta property="og:description" content="Master programming through 50 fun puzzle levels. Offline-playable PWA. Free forever." />
+    <meta property="og:description" content="Master programming through 50 fun puzzle levels. Free forever." />
     <meta property="og:type" content="website" />
     
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Brilliant OS" />
-    <meta name="twitter:description" content="Learn programming through 50 engaging puzzle levels" />
-    
-    <!-- PWA Configuration -->
     <link rel="manifest" href="./manifest.json" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%233B82F6' rx='20' width='100' height='100'/><circle cx='30' cy='30' r='10' fill='white' opacity='0.9'/><circle cx='70' cy='30' r='10' fill='white' opacity='0.9'/><circle cx='30' cy='70' r='10' fill='white' opacity='0.9'/><circle cx='70' cy='70' r='10' fill='white' opacity='0.9'/><circle cx='50' cy='50' r='8' fill='white'/></svg>" />
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%233B82F6' rx='36' width='180' height='180'/><circle cx='60' cy='60' r='16' fill='white' opacity='0.9'/><circle cx='120' cy='60' r='16' fill='white' opacity='0.9'/><circle cx='60' cy='120' r='16' fill='white' opacity='0.9'/><circle cx='120' cy='120' r='16' fill='white' opacity='0.9'/><circle cx='90' cy='90' r='12' fill='white'/></svg>" />
+    <link rel="icon" href="./icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
     
-    <style>
-      * { -webkit-tap-highlight-color: transparent; }
-    </style>
+    <style>* { -webkit-tap-highlight-color: transparent; }</style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register service worker for offline support — only in production
       if ('serviceWorker' in navigator) {
         var isInIframe = false;
         try { isInIframe = window.self !== window.top; } catch(e) { isInIframe = true; }
@@ -45,24 +34,15 @@
         if (!isInIframe && !isPreview) {
           window.addEventListener('load', function() {
             navigator.serviceWorker.register('./sw.js')
-              .then(function(reg) {
-                console.log('Service Worker registered');
-                setInterval(function() { reg.update(); }, 60000);
-              })
-              .catch(function(err) { console.log('SW registration failed:', err); });
-          });
-
-          navigator.serviceWorker.addEventListener('controllerchange', function() {
-            console.log('Service Worker updated');
+              .then(function(reg) { setInterval(function() { reg.update(); }, 60000); })
+              .catch(function(err) { console.log('SW failed:', err); });
           });
         } else {
-          // Unregister any existing service workers in preview/iframe
           navigator.serviceWorker.getRegistrations().then(function(regs) {
             regs.forEach(function(r) { r.unregister(); });
           });
         }
       }
-
       document.body.style.overflowX = 'hidden';
     </script>
   </body>
