@@ -264,13 +264,7 @@ function createLevels(): LevelData[] {
   return levels;
 }
 
-  // L2: Move forward 2 steps
-  (() => {
-    const g = fillGrid(5, 1);
-    setPath(g, [[2,0],[2,1],[2,2]]);
-    g[2][0] = 3; g[2][2] = 2;
-    levels.push({ 
-      id:2, name:"Move Forward 2", phase:1, gridSize:5, grid:g as any, 
+export const levelData = createLevels(); 
       robotStart:{x:0,y:2,direction:'right'}, parTime:15, parCommands:1, 
       availableCommands:['moveForward1'], 
       maxCommands:3, hint:"Move forward twice to reach the goal.", 
