@@ -498,7 +498,7 @@ export default function GameScreen() {
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   const cellSize = level.gridSize <= 6 ? 48 : level.gridSize <= 8 ? 40 : level.gridSize <= 10 ? 34 : 28;
-  const mobileCellSize = level.gridSize <= 6 ? 44 : level.gridSize <= 8 ? 36 : level.gridSize <= 10 ? 30 : 24;
+  const mobileCellSize = level.gridSize <= 6 ? 36 : level.gridSize <= 8 ? 30 : level.gridSize <= 10 ? 24 : 20;
 
   const renderGrid = (cSize: number) => (
     <div
