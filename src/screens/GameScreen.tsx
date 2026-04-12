@@ -707,33 +707,29 @@ export default function GameScreen() {
         </div>
       </div>
 
-      {/* Mobile Layout - Vertical Stack */}
-      <div className="flex-1 flex flex-col md:hidden overflow-auto">
-        {/* Mobile Grid - Smaller and at Top */}
-        <div className="flex justify-center py-2 px-2 shrink-0" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
+      {/* Mobile Layout - Grid always visible with commands below */}
+      <div className="flex-1 flex flex-col md:hidden overflow-hidden">
+        {/* Compact grid preview - always visible */}
+        <div className="shrink-0 flex justify-center py-1.5 px-1" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
           {renderGrid(mobileCellSize)}
         </div>
 
-        {/* Mobile Progress Bar */}
+        {/* Mobile Progress + Message - compact */}
         {isRunning && currentStep >= 0 && (
-          <div className="shrink-0 px-2 py-2" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(220, 33%, 95%)' }}>
+          <div className="shrink-0 px-2 py-1" style={{ background: 'white', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: 'hsl(220, 33%, 95%)' }}>
               <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((currentStep + 1) / sequence.length) * 100}%`, background: 'hsl(217, 91%, 60%)' }} />
             </div>
           </div>
         )}
-
-        {/* Mobile Message */}
         {message && (
-          <div className="shrink-0 px-2 py-2" style={{ background: 'hsl(25, 95%, 95%)', borderBottom: '1px solid hsl(214, 32%, 91%)' }}>
-            <div className="text-xs text-center rounded-lg p-2" style={{ color: 'hsl(25, 95%, 40%)' }}>
-              <p className="font-bold">{message}</p>
-              {failureReason && <p className="mt-1">{failureReason}</p>}
-            </div>
+          <div className="shrink-0 px-2 py-1" style={{ background: 'hsl(25, 95%, 95%)' }}>
+            <p className="text-xs text-center font-bold" style={{ color: 'hsl(25, 95%, 40%)' }}>{message}</p>
+            {failureReason && <p className="text-xs text-center" style={{ color: 'hsl(25, 95%, 40%)' }}>{failureReason}</p>}
           </div>
         )}
 
-        {/* Mobile Commands Panel - Takes Remaining Space */}
+        {/* Commands panel - scrollable, takes remaining space */}
         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           {renderCommands()}
         </div>

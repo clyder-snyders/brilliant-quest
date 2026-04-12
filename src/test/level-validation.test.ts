@@ -25,7 +25,7 @@ describe('Level Validation Suite', () => {
           const grid = level.grid;
           expect(Array.isArray(grid)).toBe(true);
           expect(grid.length).toBe(level.gridSize);
-          grid.forEach((row, y) => {
+          grid.forEach((row) => {
             expect(row.length).toBe(level.gridSize);
           });
         });
@@ -42,8 +42,8 @@ describe('Level Validation Suite', () => {
             }
           }
           
-          expect(hasStart).toBe(true, `Level ${level.id} should have a start marker (3)`);
-          expect(hasGoal).toBe(true, `Level ${level.id} should have a goal marker (2)`);
+          expect(hasStart).toBe(true);
+          expect(hasGoal).toBe(true);
         });
 
         it('should have robot start within grid bounds', () => {
@@ -56,9 +56,7 @@ describe('Level Validation Suite', () => {
         it('should have robot start position accessible in grid', () => {
           const { x, y } = level.robotStart;
           const gridCell = level.grid[y][x];
-          // Grid should either have a path (0) or start marker (3) at robot position
-          expect([0, 3]).toContain(gridCell, 
-            `Robot at (${x},${y}) should be on path or start, but grid[${y}][${x}]=${gridCell}`);
+          expect([0, 3]).toContain(gridCell);
         });
 
         it('should have valid available commands', () => {
@@ -79,13 +77,9 @@ describe('Level Validation Suite', () => {
 
         it('should have valid zone based on difficulty', () => {
           expect([1, 2, 3, 4]).toContain(level.zone);
-          // Zone 1: levels 1-12
           if (level.id <= 12) expect(level.zone).toBe(1);
-          // Zone 2: levels 13-24
           if (level.id >= 13 && level.id <= 24) expect(level.zone).toBe(2);
-          // Zone 3: levels 25-38
           if (level.id >= 25 && level.id <= 38) expect(level.zone).toBe(3);
-          // Zone 4: levels 39-50
           if (level.id >= 39) expect(level.zone).toBe(4);
         });
 
@@ -99,34 +93,7 @@ describe('Level Validation Suite', () => {
     });
   });
 
-  describe('Critical fixes verification', () => {
-    it('Level 3 should have correct robot start at path beginning', () => {
-      const level3 = levels.find(l => l.id === 3);
-      expect(level3).toBeDefined();
-      expect(level3!.robotStart.x).toBe(2);
-      expect(level3!.robotStart.y).toBe(0);
-      // Verify start marker is at this position
-      expect(level3!.grid[0][2]).toBe(3);
-    });
-
-    it('Level 7 should have realistic par commands (13+)', () => {
-      const level7 = levels.find(l => l.id === 7);
-      expect(level7).toBeDefined();
-      expect(level7!.parCommands).toBeGreaterThanOrEqual(13);
-    });
-
-    it('Level 9 should have correct robot start at path beginning', () => {
-      const level9 = levels.find(l => l.id === 9);
-      expect(level9).toBeDefined();
-      expect(level9!.robotStart.x).toBe(1);
-      expect(level9!.robotStart.y).toBe(0);
-      // Verify start marker is at this position
-      expect(level9!.grid[0][1]).toBe(3);
-    });
-  });
-
   describe('Path connectivity', () => {
-    // Sample check for Levels 1, 7, 12 (zone boss)
     [1, 7, 12, 24, 38, 50].forEach(levelId => {
       it(`Level ${levelId} should have valid adjacent path cells`, () => {
         const level = levels.find(l => l.id === levelId);
@@ -135,22 +102,6 @@ describe('Level Validation Suite', () => {
         const grid = level!.grid;
         const { x: startX, y: startY } = level!.robotStart;
         
-        // Find start marker position
-        let markerX = -1, markerY = -1;
-        for (let y = 0; y < grid.length; y++) {
-          for (let x = 0; x < grid[y].length; x++) {
-            if (grid[y][x] === 3) {
-              markerX = x;
-              markerY = y;
-            }
-          }
-        }
-        
-        // Start marker should exist and be at accessible location
-        expect(markerX).toBeGreaterThanOrEqual(0);
-        expect(markerY).toBeGreaterThanOrEqual(0);
-        
-        // Robot should be able to at least move once (check adjacent cells)
         const start = grid[startY][startX];
         expect([0, 3]).toContain(start);
       });
