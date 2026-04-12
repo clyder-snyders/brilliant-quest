@@ -71,19 +71,55 @@ const turnAroundFn = (d: Direction): Direction => ({ up: 'down', down: 'up', lef
 export default function GameScreen() {
   const { state, dispatch } = useGame();
 
+  // Ensure we have valid level data
+  if (!levelData || levelData.length === 0) {
+    return (
+      <div className="h-screen flex items-center justify-center" style={{ background: 'hsl(220, 27%, 98%)' }}>
+        <div className="text-center p-4">
+          <p style={{ color: 'hsl(217, 33%, 17%)' }} className="font-bold mb-2">Error Loading Game</p>
+          <p style={{ color: 'hsl(215, 16%, 47%)' }} className="text-sm mb-4">Level data is not available.</p>
+          <button className="btn-primary" onClick={() => window.location.reload()}>
+            Reload Game
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const validLevelId = state.currentLevel >= 1 && state.currentLevel <= 50 ? state.currentLevel : 1;
-  const level = levelData.find(l => l.id === validLevelId) || levelData[0];
+  let level = levelData.find(l => l.id === validLevelId);
+  
+  if (!level) {
+    level = levelData.find(l => l.id === 1);
+  }
+
+  if (!level) {
+    return (
+      <div className="h-screen flex items-center justify-center" style={{ background: 'hsl(220, 27%, 98%)' }}>
+        <div className="text-center p-4">
+          <p style={{ color: 'hsl(217, 33%, 17%)' }} className="font-bold mb-2">Level Not Found</p>
+          <p style={{ color: 'hsl(215, 16%, 47%)' }} className="text-sm mb-4">Could not load level {validLevelId}.</p>
+          <button className="btn-primary" onClick={() => dispatch({ type: 'SET_LEVEL', levelId: 1 })}>
+            Go to Level 1
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const validation = validateLevelData(level);
     if (!validation.valid) {
       console.error('Invalid level data:', validation.errors);
-      dispatch({ type: 'SET_LEVEL', levelId: 1 });
+      if (level.id !== 1) {
+        dispatch({ type: 'SET_LEVEL', levelId: 1 });
+      }
     }
   }, [level, dispatch]);
 
   const [robotPos, setRobotPos] = useState({ x: level.robotStart.x, y: level.robotStart.y });
-  const [robotDir, setRobotDir] = useState<Direction>(level.robotStart.direction);
+  const validDirection = (['up', 'down', 'left', 'right'].includes(level.robotStart.direction) ? level.robotStart.direction : 'right') as Direction;
+  const [robotDir, setRobotDir] = useState<Direction>(validDirection);
   const [sequence, setSequence] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
@@ -136,7 +172,8 @@ export default function GameScreen() {
     setIsRunning(false);
     // Reset robot
     setRobotPos({ x: level.robotStart.x, y: level.robotStart.y });
-    setRobotDir(level.robotStart.direction);
+    const validDir = (['up', 'down', 'left', 'right'].includes(level.robotStart.direction) ? level.robotStart.direction : 'right') as Direction;
+    setRobotDir(validDir);
     setCurrentStep(-1);
     // Reset timer completely
     if (timerRef.current) {
@@ -158,7 +195,8 @@ export default function GameScreen() {
     runningRef.current = false;
     setIsRunning(false);
     setRobotPos({ x: level.robotStart.x, y: level.robotStart.y });
-    setRobotDir(level.robotStart.direction);
+    const validDir = (['up', 'down', 'left', 'right'].includes(level.robotStart.direction) ? level.robotStart.direction : 'right') as Direction;
+    setRobotDir(validDir);
     setCurrentStep(-1);
     // Fully reset timer
     if (timerRef.current) {
@@ -247,7 +285,7 @@ export default function GameScreen() {
 
     // Reset robot position for the run
     let pos = { x: level.robotStart.x, y: level.robotStart.y };
-    let dir: Direction = level.robotStart.direction;
+    let dir: Direction = (['up', 'down', 'left', 'right'].includes(level.robotStart.direction) ? level.robotStart.direction : 'right') as Direction;
     let hits = 0;
     let stoppedByWall = false;
     let variableCounter = 0;

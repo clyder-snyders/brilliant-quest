@@ -44,6 +44,21 @@ export default function LevelMapScreen() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showDailyChallenge, setShowDailyChallenge] = useState(false);
 
+  // Defensive check for levelData
+  if (!levelData || levelData.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(220, 27%, 98%)' }}>
+        <div className="text-center p-4">
+          <p style={{ color: 'hsl(217, 33%, 17%)' }} className="font-bold mb-2">Error Loading Levels</p>
+          <p style={{ color: 'hsl(215, 16%, 47%)' }} className="text-sm">Level data is not available.</p>
+          <button className="btn-primary mt-4" onClick={() => window.location.reload()}>
+            Reload Game
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const dailyChallenge = useMemo(() => getDailyChallenge(), []);
   const dailyLevel = levelData.find(l => l.id === dailyChallenge.levelId);
   const dailyCompleted = isDailyChallengeCompleted(dailyChallenge.dateKey);
@@ -55,7 +70,7 @@ export default function LevelMapScreen() {
 
   const isZoneAccessible = (zoneId: number) => {
     if (zoneId === 1) return true;
-    const zoneLevels = levelData.filter(l => l.zone === zoneId - 1);
+    const zoneLevels = levelData.filter(l => l.zone === zoneId);
     const completedCount = zoneLevels.filter(l => state.levelProgress[l.id]?.completed).length;
     const threshold = Math.ceil(zoneLevels.length * 0.7);
     return completedCount >= threshold;

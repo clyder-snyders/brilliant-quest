@@ -18,154 +18,154 @@ const calcScore = (gridSize: number, turns: number, decisions: number, blocks: n
 function createLevels(): LevelData[] {
   const levels: LevelData[] = [];
 
-  // ===== PHASE 1: FOUNDATIONS (Levels 1-10) =====
-  // L1: Move 3 steps straight (teaches basic movement)
+  // ===== PHASE 1: FOUNDATIONS (Levels 1-10) - BLOCKLY MAZE ALIGNED =====
+  // L1: Move forward 1 step (trivial - just show you can move)
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1]]);
+    g[2][0] = 3; g[2][1] = 2;
+    levels.push({ 
+      id:1, name:"Move Forward 1", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:10, parCommands:1, 
+      availableCommands:['moveForward1'], 
+      maxCommands:3, hint:"Move forward one space to reach the goal.", 
+      conceptTaught:"Basic Movement", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 2
+    });
+  })();
+
+  // L2: Move forward 2 steps
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2]]);
+    g[2][0] = 3; g[2][2] = 2;
+    levels.push({ 
+      id:2, name:"Move Forward 2", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:15, parCommands:1, 
+      availableCommands:['moveForward1'], 
+      maxCommands:3, hint:"Move forward twice to reach the goal.", 
+      conceptTaught:"Repeated Movement", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 3
+    });
+  })();
+
+  // L3: Move forward 3 steps
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3]]);
+    g[2][0] = 3; g[2][3] = 2;
+    levels.push({ 
+      id:3, name:"Move Forward 3", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:15, parCommands:1, 
+      availableCommands:['moveForward1'], 
+      maxCommands:4, hint:"Move forward three times to reach the goal.", 
+      conceptTaught:"Multiple Steps", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 3
+    });
+  })();
+
+  // L4: Move forward 4 times (must use 4 move blocks)
   (() => {
     const g = fillGrid(5, 1);
     setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4]]);
     g[2][0] = 3; g[2][4] = 2;
     levels.push({ 
-      id:1, name:"Move Forward 3", phase:1, gridSize:5, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:1, 
-      availableCommands:['moveForward1','moveForward2','moveForward3'], 
-      maxCommands:5, hint:"Move forward 3 spaces to reach the goal.", 
-      conceptTaught:"Basic Movement", zone:1,
+      id:4, name:"Move Forward 4", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:15, parCommands:1, 
+      availableCommands:['moveForward1'], 
+      maxCommands:5, hint:"Move forward four times to reach the goal.", 
+      conceptTaught:"Extended Sequencing", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 4
+    });
+  })();
+
+  // L5: Turn right then move forward
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[3,2],[4,2]]);
+    g[2][0] = 3; g[4][2] = 2;
+    levels.push({ 
+      id:5, name:"Turn Right", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:3, 
+      availableCommands:['moveForward1','turnRight'], 
+      maxCommands:6, hint:"Turn right then move forward.", 
+      conceptTaught:"Turning Right", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 4
+    });
+  })();
+
+  // L6: Turn left then move forward
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2]]);
+    g[2][0] = 3; g[0][2] = 2;
+    levels.push({ 
+      id:6, name:"Turn Left", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:3, 
+      availableCommands:['moveForward1','turnLeft'], 
+      maxCommands:6, hint:"Turn left then move forward.", 
+      conceptTaught:"Turning Left", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 4
+    });
+  })();
+
+  // L7: L-shaped path (right+down)
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[3,2],[4,2],[4,3],[4,4]]);
+    g[2][0] = 3; g[4][4] = 2;
+    levels.push({ 
+      id:7, name:"L-Shape 1", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:25, parCommands:5, 
+      availableCommands:['moveForward1','turnRight','turnLeft'], 
+      maxCommands:8, hint:"Move right, then turn right, then move down.", 
+      conceptTaught:"Complex Path", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 5
+    });
+  })();
+
+  // L8: L-shaped path (down+right)
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[3,0],[4,0],[4,1],[4,2],[4,3],[4,4]]);
+    g[2][0] = 3; g[4][4] = 2;
+    levels.push({ 
+      id:8, name:"L-Shape 2", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'down'}, parTime:25, parCommands:5, 
+      availableCommands:['moveForward1','turnRight','turnLeft'], 
+      maxCommands:8, hint:"Move down, then turn right, then move right.", 
+      conceptTaught:"Path Variation", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 5
+    });
+  })();
+
+  // L9: Introduce Repeat (4 identical moves)
+  (() => {
+    const g = fillGrid(6, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4]]);
+    g[2][0] = 3; g[2][4] = 2;
+    levels.push({ 
+      id:9, name:"Repeat Introduction", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:2, 
+      availableCommands:['moveForward1','repeat4','repeat5','turnLeft','turnRight'], 
+      maxCommands:6, hint:"Use Repeat 4× [Move Forward] to reach the goal.", 
+      conceptTaught:"Repeat Loops", zone:1,
       requiredTurns:0, decisionPoints:0, complexityScore: 5
     });
   })();
 
-  // L2: Turn right, move 2, turn left, move 2 (teaches turning)
-  (() => {
-    const g = fillGrid(5, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4]]);
-    g[2][0] = 3; g[0][4] = 2;
-    levels.push({ 
-      id:2, name:"L-Shape Right", phase:1, gridSize:5, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:25, parCommands:4, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
-      maxCommands:8, hint:"Turn right at the corner, then move up.", 
-      conceptTaught:"Turning Right", zone:1,
-      requiredTurns:1, decisionPoints:0, complexityScore: 8
-    });
-  })();
-
-  // L3: U-turn pattern with specific turns
-  (() => {
-    const g = fillGrid(5, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4]]);
-    g[2][0] = 3; g[0][4] = 2;
-    levels.push({ 
-      id:3, name:"U-Turn Pattern", phase:1, gridSize:5, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:28, parCommands:5, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
-      maxCommands:10, hint:"Make a U-shaped move: move 2, turn, move 2, turn.", 
-      conceptTaught:"Orientation", zone:1,
-      requiredTurns:2, decisionPoints:0, complexityScore: 10
-    });
-  })();
-
-  // L4: L-shape pattern left
-  (() => {
-    const g = fillGrid(5, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[3,4],[4,4]]);
-    g[2][0] = 3; g[4][4] = 2;
-    levels.push({ 
-      id:4, name:"L-Shape Left", phase:1, gridSize:5, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:30, parCommands:4, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
-      maxCommands:10, hint:"Go right, turn left, go down.", 
-      conceptTaught:"Turn Left", zone:1,
-      requiredTurns:1, decisionPoints:0, complexityScore: 10
-    });
-  })();
-
-  // L5: Simple zigzag
-  (() => {
-    const g = fillGrid(5, 1);
-    setPath(g, [[4,0],[4,1],[3,1],[3,2],[2,2],[2,3],[1,3],[1,4],[0,4]]);
-    g[4][0] = 3; g[0][4] = 2;
-    levels.push({ 
-      id:5, name:"Simple Zigzag", phase:1, gridSize:5, grid:g as any, 
-      robotStart:{x:0,y:4,direction:'right'}, parTime:32, parCommands:7, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
-      maxCommands:12, hint:"Follow the zigzag path with alternating turns.", 
-      conceptTaught:"Complex Sequencing", zone:1,
-      requiredTurns:4, decisionPoints:0, complexityScore: 12
-    });
-  })();
-
-  // L6: Introduce Repeat 2x - repeat a move
+  // L10: Phase 1 Boss - Repeat + turns
   (() => {
     const g = fillGrid(6, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]);
-    g[2][0] = 3; g[2][5] = 2;
-    levels.push({ 
-      id:6, name:"Repeat 2x Introduction", phase:1, gridSize:6, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:22, parCommands:2, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','turnLeft','turnRight'], 
-      maxCommands:8, hint:"Use Repeat 2x with Move 2 to cover 4 spaces efficiently.", 
-      conceptTaught:"Repeat 2x", zone:1,
-      requiredTurns:0, decisionPoints:0, complexityScore: 8
-    });
-  })();
-
-  // L7: Square with repeated turns (repeat 3x)
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[1,1],[1,2],[1,3],[2,3],[3,3],[3,2],[3,1],[2,1]]);
-    g[1][1] = 3; g[2][1] = 2;
-    levels.push({ 
-      id:7, name:"Repeat 3x Pattern", phase:1, gridSize:6, grid:g as any, 
-      robotStart:{x:1,y:1,direction:'right'}, parTime:35, parCommands:3, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','turnLeft','turnRight'], 
-      maxCommands:10, hint:"Use Repeat 3x: [Move 2, Turn Left] creates a 3-4-3 shape.", 
-      conceptTaught:"Repeat 3x", zone:1,
-      requiredTurns:3, decisionPoints:0, complexityScore: 12
-    });
-  })();
-
-  // L8: Long straight path for Until Goal
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]);
-    g[2][0] = 3; g[2][5] = 2;
-    levels.push({ 
-      id:8, name:"Until Goal Intro", phase:1, gridSize:6, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:1, 
-      availableCommands:['moveForward1','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight'], 
-      maxCommands:6, hint:"Use 'Repeat Until Goal' with Move 1 or 2.", 
-      conceptTaught:"Until Goal", zone:1,
-      requiredTurns:0, decisionPoints:0, complexityScore: 8
-    });
-  })();
-
-  // L9: Until Goal with a turn
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5]]);
-    g[0][0] = 3; g[2][5] = 2;
-    levels.push({ 
-      id:9, name:"Until Goal + Turn", phase:1, gridSize:6, grid:g as any, 
-      robotStart:{x:0,y:0,direction:'right'}, parTime:25, parCommands:3, 
-      availableCommands:['moveForward1','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight'], 
-      maxCommands:8, hint:"Move until goal, turn, then move down.", 
-      conceptTaught:"Until Goal with Turns", zone:1,
-      requiredTurns:1, decisionPoints:0, complexityScore: 10
-    });
-  })();
-
-  // L10: Phase 1 Boss - Combine all foundations
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[4,4]]);
-    g[2][0] = 3; g[4][4] = 2;
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[3,3],[4,3],[4,2],[4,1],[4,0]]);
+    g[2][0] = 3; g[4][0] = 2;
     levels.push({ 
       id:10, name:"Foundations Boss", phase:1, gridSize:6, grid:g as any, 
-      robotStart:{x:0,y:2,direction:'right'}, parTime:40, parCommands:8, 
-      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight','turnAround'], 
-      maxCommands:14, hint:"Combine moves, turns, and loops to navigate this complex path.", 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:35, parCommands:4, 
+      availableCommands:['moveForward1','repeat3','repeat4','repeat5','turnLeft','turnRight'], 
+      maxCommands:8, hint:"Use loops and turns to navigate around the obstacle.", 
       conceptTaught:"Foundations Mastery", zone:1,
-      requiredTurns:3, decisionPoints:0, complexityScore: 15
+      requiredTurns:2, decisionPoints:0, complexityScore: 8
     });
   })();
 

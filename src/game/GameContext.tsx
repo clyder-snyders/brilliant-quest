@@ -87,14 +87,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    // Always load saved state first
     const saved = loadGameState();
-    dispatch({ type: 'LOAD_STATE', state: saved });
+    if (saved && Object.keys(saved).length > 0) {
+      dispatch({ type: 'LOAD_STATE', state: saved });
+    }
 
-    // If profile exists, skip welcome/setup and go straight to level map
+    // Then check if we should skip to level map
     if (hasProfile()) {
-      setTimeout(() => {
+      // Use requestAnimationFrame to ensure state is updated before transitioning
+      const frameId = requestAnimationFrame(() => {
         dispatch({ type: 'SET_SCREEN', screen: 'levelMap' });
-      }, 0);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
   }, []);
 

@@ -63,11 +63,14 @@ function GameRouter() {
     about: <AboutScreen />,
   };
 
+  // Default to welcome screen if current screen is invalid
+  const currentScreen = screenMap[state.currentScreen] ? state.currentScreen : 'welcome';
+
   return (
     <>
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <div className="min-h-screen">
-        {screenMap[state.currentScreen] || <WelcomeScreen />}
+        {screenMap[currentScreen] || <WelcomeScreen />}
       </div>
       {state.currentScreen !== 'game' && <FeedbackButton />}
       <PWAInstallBanner />
