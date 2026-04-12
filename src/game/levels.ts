@@ -9,345 +9,774 @@ const setPath = (grid: number[][], cells: [number, number][], val: number = 0) =
   return grid;
 };
 
-// Generate all 50 levels
+// Complexity Score Calculator: (Grid Cells) × (Turns Required) × (Decision Points) / (Available Blocks)
+const calcScore = (gridSize: number, turns: number, decisions: number, blocks: number): number => {
+  return Math.round((gridSize * gridSize * turns * decisions) / Math.max(blocks, 1));
+};
+
+// Generate all 50 levels with Blockly Maze progression
 function createLevels(): LevelData[] {
   const levels: LevelData[] = [];
 
-  // ===== ZONE 1: Easy — Foundations (6×6) =====
-  // Level 1: First Steps — straight horizontal
+  // ===== PHASE 1: FOUNDATIONS (Levels 1-10) =====
+  // L1: Move 3 steps straight (teaches basic movement)
   (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5]]);
-    g[0][0] = 3; g[0][5] = 2;
-    levels.push({ id:1, name:"First Steps", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:20, parCommands:3, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Move forward to reach the flag.", conceptTaught:"Sequencing" });
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4]]);
+    g[2][0] = 3; g[2][4] = 2;
+    levels.push({ 
+      id:1, name:"Move Forward 3", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:1, 
+      availableCommands:['moveForward1','moveForward2','moveForward3'], 
+      maxCommands:5, hint:"Move forward 3 spaces to reach the goal.", 
+      conceptTaught:"Basic Movement", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 5
+    });
   })();
 
-  // Level 2: Turn Right — L-shaped path right
+  // L2: Turn right, move 2, turn left, move 2 (teaches turning)
   (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[2,5]]);
-    g[0][0] = 3; g[2][5] = 2;
-    levels.push({ id:2, name:"Turn Right", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:22, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Go right, turn right, continue to the goal.", conceptTaught:"Turn Right" });
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4]]);
+    g[2][0] = 3; g[0][4] = 2;
+    levels.push({ 
+      id:2, name:"L-Shape Right", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:25, parCommands:4, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
+      maxCommands:8, hint:"Turn right at the corner, then move up.", 
+      conceptTaught:"Turning Right", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 8
+    });
   })();
 
-  // Level 3: Turn Left — unique path different from level 7
+  // L3: U-turn pattern with specific turns
   (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3],[3,2],[3,1],[3,0]]);
-    g[0][0] = 3; g[3][0] = 2;
-    levels.push({ id:3, name:"Turn Left", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:30, parCommands:5, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:12, hint:"Go right, turn right to go down, then turn right again to go left.", conceptTaught:"Turn Left" });
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4]]);
+    g[2][0] = 3; g[0][4] = 2;
+    levels.push({ 
+      id:3, name:"U-Turn Pattern", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:28, parCommands:5, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
+      maxCommands:10, hint:"Make a U-shaped move: move 2, turn, move 2, turn.", 
+      conceptTaught:"Orientation", zone:1,
+      requiredTurns:2, decisionPoints:0, complexityScore: 10
+    });
   })();
 
-  // Level 4: The Corner — 2-turn path
+  // L4: L-shape pattern left
   (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5]]);
-    g[0][0] = 3; g[4][5] = 2;
-    levels.push({ id:4, name:"The Corner", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:28, parCommands:6, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:14, hint:"Navigate two corners.", conceptTaught:"Multi-turn Sequencing" });
+    const g = fillGrid(5, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[3,4],[4,4]]);
+    g[2][0] = 3; g[4][4] = 2;
+    levels.push({ 
+      id:4, name:"L-Shape Left", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:30, parCommands:4, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
+      maxCommands:10, hint:"Go right, turn left, go down.", 
+      conceptTaught:"Turn Left", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 10
+    });
   })();
 
-  // Level 5: Double Step
+  // L5: Simple zigzag
+  (() => {
+    const g = fillGrid(5, 1);
+    setPath(g, [[4,0],[4,1],[3,1],[3,2],[2,2],[2,3],[1,3],[1,4],[0,4]]);
+    g[4][0] = 3; g[0][4] = 2;
+    levels.push({ 
+      id:5, name:"Simple Zigzag", phase:1, gridSize:5, grid:g as any, 
+      robotStart:{x:0,y:4,direction:'right'}, parTime:32, parCommands:7, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], 
+      maxCommands:12, hint:"Follow the zigzag path with alternating turns.", 
+      conceptTaught:"Complex Sequencing", zone:1,
+      requiredTurns:4, decisionPoints:0, complexityScore: 12
+    });
+  })();
+
+  // L6: Introduce Repeat 2x - repeat a move
+  (() => {
+    const g = fillGrid(6, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]);
+    g[2][0] = 3; g[2][5] = 2;
+    levels.push({ 
+      id:6, name:"Repeat 2x Introduction", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:22, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','turnLeft','turnRight'], 
+      maxCommands:8, hint:"Use Repeat 2x with Move 2 to cover 4 spaces efficiently.", 
+      conceptTaught:"Repeat 2x", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 8
+    });
+  })();
+
+  // L7: Square with repeated turns (repeat 3x)
+  (() => {
+    const g = fillGrid(6, 1);
+    setPath(g, [[1,1],[1,2],[1,3],[2,3],[3,3],[3,2],[3,1],[2,1]]);
+    g[1][1] = 3; g[2][1] = 2;
+    levels.push({ 
+      id:7, name:"Repeat 3x Pattern", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:1,y:1,direction:'right'}, parTime:35, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','turnLeft','turnRight'], 
+      maxCommands:10, hint:"Use Repeat 3x: [Move 2, Turn Left] creates a 3-4-3 shape.", 
+      conceptTaught:"Repeat 3x", zone:1,
+      requiredTurns:3, decisionPoints:0, complexityScore: 12
+    });
+  })();
+
+  // L8: Long straight path for Until Goal
+  (() => {
+    const g = fillGrid(6, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5]]);
+    g[2][0] = 3; g[2][5] = 2;
+    levels.push({ 
+      id:8, name:"Until Goal Intro", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:20, parCommands:1, 
+      availableCommands:['moveForward1','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight'], 
+      maxCommands:6, hint:"Use 'Repeat Until Goal' with Move 1 or 2.", 
+      conceptTaught:"Until Goal", zone:1,
+      requiredTurns:0, decisionPoints:0, complexityScore: 8
+    });
+  })();
+
+  // L9: Until Goal with a turn
   (() => {
     const g = fillGrid(6, 1);
     setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5]]);
     g[0][0] = 3; g[2][5] = 2;
-    levels.push({ id:5, name:"Double Step", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:25, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Use Move 2 or 3 for efficiency.", conceptTaught:"Move Forward 2" });
+    levels.push({ 
+      id:9, name:"Until Goal + Turn", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:25, parCommands:3, 
+      availableCommands:['moveForward1','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight'], 
+      maxCommands:8, hint:"Move until goal, turn, then move down.", 
+      conceptTaught:"Until Goal with Turns", zone:1,
+      requiredTurns:1, decisionPoints:0, complexityScore: 10
+    });
   })();
 
-  // Level 6: Triple Jump
+  // L10: Phase 1 Boss - Combine all foundations
   (() => {
     const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]]);
-    g[0][0] = 3; g[5][5] = 2;
-    levels.push({ id:6, name:"Triple Jump", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:22, parCommands:4, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:10, hint:"Use Move 3 to cover ground quickly.", conceptTaught:"Move Forward 3" });
+    setPath(g, [[2,0],[2,1],[2,2],[1,2],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[4,4]]);
+    g[2][0] = 3; g[4][4] = 2;
+    levels.push({ 
+      id:10, name:"Foundations Boss", phase:1, gridSize:6, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:40, parCommands:8, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeatUntilGoal','turnLeft','turnRight','turnAround'], 
+      maxCommands:14, hint:"Combine moves, turns, and loops to navigate this complex path.", 
+      conceptTaught:"Foundations Mastery", zone:1,
+      requiredTurns:3, decisionPoints:0, complexityScore: 15
+    });
   })();
 
-  // Level 7: Zigzag — UNIQUE path (different from level 3)
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[1,1],[1,2],[2,2],[2,3],[3,3],[3,4],[4,4],[4,5]]);
-    g[0][0] = 3; g[4][5] = 2;
-    levels.push({ id:7, name:"Zigzag", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:45, parCommands:13, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:18, hint:"Alternate move and turn for the zigzag.", conceptTaught:"Multi-step Sequencing" });
-  })();
+  // ===== PHASE 2: BUILDER (Levels 11-25) =====
+  // Introduce fixed-count loops with turns, nested loops, Until Wall sensor, If Path Ahead conditionals
 
-  // Level 8: Around the Block
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,2],[2,1],[2,0]]);
-    g[0][0] = 3; g[2][0] = 2;
-    levels.push({ id:8, name:"Around the Block", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:32, parCommands:7, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight','turnAround'], maxCommands:14, hint:"Go around the block.", conceptTaught:"Turn Around" });
-  })();
-
-  // Level 9: Narrow Pass
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[1,0],[1,1],[1,2],[2,2],[3,2],[3,3],[3,4],[2,4],[1,4],[1,5]]);
-    g[1][0] = 3; g[1][5] = 2;
-    levels.push({ id:9, name:"Narrow Pass", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:1,direction:'right'}, parTime:30, parCommands:8, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:15, hint:"Navigate through the narrow corridor.", conceptTaught:"Precision Movement" });
-  })();
-
-  // Level 10: The S-Bend
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,3],[4,2]]);
-    g[0][0] = 3; g[4][2] = 2;
-    levels.push({ id:10, name:"The S-Bend", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:35, parCommands:8, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:16, hint:"Follow the S-shaped path with careful turns.", conceptTaught:"Complex Sequencing" });
-  })();
-
-  // Level 11: The Long Road
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[5,3],[5,2],[5,1],[5,0]]);
-    g[0][0] = 3; g[5][0] = 2;
-    levels.push({ id:11, name:"The Long Road", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:40, parCommands:8, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight'], maxCommands:16, hint:"U-shaped path. Use multi-step moves.", conceptTaught:"Full Sequencing" });
-  })();
-
-  // Level 12: Zone Boss
-  (() => {
-    const g = fillGrid(6, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[5,4],[5,3],[5,2]]);
-    g[0][0] = 3; g[5][2] = 2;
-    levels.push({ id:12, name:"Zone Boss", zone:1, gridSize:6, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:40, parCommands:7, availableCommands:['moveForward1','moveForward2','moveForward3','turnLeft','turnRight','turnAround'], maxCommands:16, hint:"Combine all your movement skills.", conceptTaught:"Sequencing Mastery" });
-  })();
-
-  // ===== ZONE 2: Difficult — Builder (8×8) =====
-  const zone2Commands = ['moveForward1','moveForward2','moveForward3','turnLeft','turnRight','turnAround','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal'];
-
-  // Level 13: Do It Again
+  // L11: Repeat 2x with Turn (corridor pattern)
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]]);
-    g[0][0] = 3; g[0][7] = 2;
-    levels.push({ id:13, name:"Do It Again", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:30, parCommands:3, availableCommands:zone2Commands, maxCommands:12, hint:"Use Repeat to move forward multiple times.", conceptTaught:"Repeat 2×" });
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[4,4],[5,4],[6,4]]);
+    g[3][0] = 3; g[6][4] = 2;
+    levels.push({ 
+      id:11, name:"Repeat 2x Turn", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:28, parCommands:4, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:12, hint:"Move forward, turn right, move again. Use Repeat 2x to simplify.", 
+      conceptTaught:"Repeat with Turns", zone:2,
+      requiredTurns:1, decisionPoints:0, complexityScore: 10
+    });
   })();
 
-  // Level 14: Three Times
+  // L12: Repeat 2x with multiple turns
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[1,7],[2,7]]);
-    g[0][0] = 3; g[2][7] = 2;
-    levels.push({ id:14, name:"Three Times", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:28, parCommands:4, availableCommands:zone2Commands, maxCommands:12, hint:"Use Repeat 3× with move forward.", conceptTaught:"Repeat 3×" });
+    setPath(g, [[2,0],[2,1],[3,1],[4,1],[4,2],[4,3],[4,4],[4,5]]);
+    g[2][0] = 3; g[4][5] = 2;
+    levels.push({ 
+      id:12, name:"Repeat Turn Pattern", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:32, parCommands:5, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:14, hint:"Identify the repeating [Move-Turn-Move] pattern.", 
+      conceptTaught:"Pattern Recognition", zone:2,
+      requiredTurns:2, decisionPoints:0, complexityScore: 12
+    });
   })();
 
-  // Level 15: The Pattern
+  // L13: Repeat 3x with turn sequence
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4],[2,5],[2,6],[3,6],[3,7]]);
-    g[0][0] = 3; g[3][7] = 2;
-    levels.push({ id:15, name:"The Pattern", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:35, parCommands:6, availableCommands:zone2Commands, maxCommands:16, hint:"Notice the repeating L-pattern.", conceptTaught:"Repeat Block + Sequence" });
+    setPath(g, [[1,0],[1,1],[1,2],[2,2],[3,2],[3,1],[3,0],[4,0],[5,0],[5,1],[5,2],[6,2],[6,3]]);
+    g[1][0] = 3; g[6][3] = 2;
+    levels.push({ 
+      id:13, name:"Repeat 3x Sequence", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:38, parCommands:6, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Use Repeat 3x to execute the same sequence three times.", 
+      conceptTaught:"Repeat 3x", zone:2,
+      requiredTurns:3, decisionPoints:0, complexityScore: 14
+    });
   })();
 
-  // Level 16: Loop the Block
+  // L14: Nested loops intro (loop inside loop)
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[7,3],[7,2],[7,1],[6,1],[5,1],[4,1],[3,1],[2,1]]);
-    g[1][1] = 3; g[2][1] = 2;
-    levels.push({ id:16, name:"Loop the Block", zone:2, gridSize:8, grid:g as any, robotStart:{x:1,y:1,direction:'right'}, parTime:50, parCommands:8, availableCommands:zone2Commands, maxCommands:20, hint:"Walk around the block using repeat + turn right.", conceptTaught:"Repeat 4× with Turn" });
+    setPath(g, [[1,1],[1,2],[1,3],[2,3],[3,3],[3,2],[3,1],[4,1],[5,1],[5,2],[5,3]]);
+    g[1][1] = 3; g[5][3] = 2;
+    levels.push({ 
+      id:14, name:"Nested Loops Start", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:1,y:1,direction:'right'}, parTime:40, parCommands:7, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Put one repeat loop inside another for 2x2 patterns.", 
+      conceptTaught:"Nested Loops", zone:2,
+      requiredTurns:3, decisionPoints:0, complexityScore: 16
+    });
   })();
 
-  // Level 17: Repeat Until
+  // L15: Nested loops pattern
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 8; c++) g[3][c] = 0;
-    g[3][0] = 3; g[3][7] = 2;
-    levels.push({ id:17, name:"Repeat Until", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:3,direction:'right'}, parTime:25, parCommands:2, availableCommands:zone2Commands, maxCommands:10, hint:"Use 'Repeat Until Goal' with Move Forward.", conceptTaught:"Repeat Until Goal" });
+    setPath(g, [[2,0],[2,1],[2,2],[3,2],[4,2],[4,1],[4,0],[5,0],[6,0],[6,1],[6,2]]);
+    g[2][0] = 3; g[6][2] = 2;
+    levels.push({ 
+      id:15, name:"Grid Pattern", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:42, parCommands:8, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:20, hint:"Create a 3x3 grid pattern with nested repeats.", 
+      conceptTaught:"Nested Loop Patterns", zone:2,
+      requiredTurns:4, decisionPoints:0, complexityScore: 18
+    });
   })();
 
-  // Level 18: Wall Stopper
+  // L16: Nested loops complex
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 6; c++) g[0][c] = 0;
-    g[0][0] = 3; g[0][5] = 2;
-    levels.push({ id:18, name:"Wall Stopper", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:25, parCommands:3, availableCommands:zone2Commands, maxCommands:10, hint:"Move forward until you reach the goal.", conceptTaught:"Repeat Until Wall" });
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,2],[2,1],[2,0],[3,0],[4,0],[4,1],[4,2],[4,3]]);
+    g[0][0] = 3; g[4][3] = 2;
+    levels.push({ 
+      id:16, name:"Nested Loop Mastery", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:45, parCommands:9, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','turnLeft','turnRight','turnAround'],
+      maxCommands:22, hint:"Layer nested repeats to create complex movement patterns.", 
+      conceptTaught:"Advanced Nesting", zone:2,
+      requiredTurns:3, decisionPoints:0, complexityScore: 20
+    });
   })();
 
-  // Level 19: Spiral In
+  // L17: Until Wall sensor intro
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 8; c++) g[0][c] = 0;
-    for (let r = 0; r < 8; r++) g[r][7] = 0;
-    for (let c = 7; c >= 1; c--) g[7][c] = 0;
-    for (let r = 7; r >= 2; r--) g[r][1] = 0;
-    for (let c = 1; c <= 5; c++) g[2][c] = 0;
-    for (let r = 2; r <= 5; r++) g[r][5] = 0;
-    for (let c = 5; c >= 3; c--) g[5][c] = 0;
-    g[0][0] = 3; g[5][3] = 2;
-    levels.push({ id:19, name:"Spiral In", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:60, parCommands:15, availableCommands:zone2Commands, maxCommands:26, hint:"Follow the spiral inward — use loops for straight segments.", conceptTaught:"Nested Repeat Logic" });
+    setPath(g, [[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7]]);
+    g[4][0] = 3; g[4][7] = 2;
+    levels.push({ 
+      id:17, name:"Until Wall", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:4,direction:'right'}, parTime:30, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','turnLeft','turnRight','turnAround'],
+      maxCommands:10, hint:"Use 'Repeat Until Wall' to move forward until hitting a wall.", 
+      conceptTaught:"Until Wall Sensor", zone:2,
+      requiredTurns:0, decisionPoints:0, complexityScore: 12
+    });
   })();
 
-  // Level 20: Efficiency Test
+  // L18: Until Wall with turn
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,4],[2,5],[2,6],[2,7]]);
-    g[0][0] = 3; g[2][7] = 2;
-    levels.push({ id:20, name:"Efficiency Test", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:30, parCommands:5, availableCommands:zone2Commands, maxCommands:14, hint:"Combine multi-step moves with loops.", conceptTaught:"Efficiency + Loops" });
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[4,4],[5,4],[6,4],[7,4]]);
+    g[3][0] = 3; g[7][4] = 2;
+    levels.push({ 
+      id:18, name:"Until Wall Turn", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:32, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','turnLeft','turnRight','turnAround'],
+      maxCommands:12, hint:"Move until wall, turn, then move again.", 
+      conceptTaught:"Wall Detection + Turn", zone:2,
+      requiredTurns:1, decisionPoints:0, complexityScore: 14
+    });
   })();
 
-  // Level 21: Maze Run
+  // L19: Until Wall with complex path
   (() => {
     const g = fillGrid(8, 1);
-    setPath(g, [[0,0],[0,1],[1,1],[2,1],[2,2],[2,3],[3,3],[4,3],[4,4],[4,5],[3,5],[2,5],[2,6],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]]);
-    g[0][0] = 3; g[7][7] = 2;
-    levels.push({ id:21, name:"Maze Run", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:60, parCommands:12, availableCommands:zone2Commands, maxCommands:24, hint:"Navigate the maze — plan your turns.", conceptTaught:"Loops + Turns Combined" });
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[2,5],[3,5],[4,5],[5,5],[5,6],[5,7]]);
+    g[1][0] = 3; g[5][7] = 2;
+    levels.push({ 
+      id:19, name:"Wall Maze", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:40, parCommands:5, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Combine Until Wall with turns to navigate the corridor.", 
+      conceptTaught:"Wall Sensors + Navigation", zone:2,
+      requiredTurns:2, decisionPoints:0, complexityScore: 16
+    });
   })();
 
-  // Level 22: Double Loop
+  // L20: Until Wall spiral pattern
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 4; c++) g[0][c] = 0;
-    g[1][3] = 0; g[2][3] = 0;
-    for (let c = 3; c < 8; c++) g[2][c] = 0;
-    g[0][0] = 3; g[2][7] = 2;
-    levels.push({ id:22, name:"Double Loop", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:45, parCommands:6, availableCommands:zone2Commands, maxCommands:14, hint:"Use two separate loop blocks.", conceptTaught:"Multiple Repeat Blocks" });
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[7,6],[7,5],[7,4],[7,3],[7,2],[7,1]]);
+    g[0][0] = 3; g[7][1] = 2;
+    levels.push({ 
+      id:20, name:"Spiral Wall", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:50, parCommands:8, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','turnLeft','turnRight','turnAround'],
+      maxCommands:20, hint:"Use Until Wall with repeat turns to spiral outward.", 
+      conceptTaught:"Wall-Following Basics", zone:2,
+      requiredTurns:4, decisionPoints:0, complexityScore: 20
+    });
   })();
 
-  // Level 23: Loop Bonus
+  // L21: If Path Ahead intro
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 8; c++) g[1][c] = 0;
-    g[1][2] = 5; g[1][5] = 5;
-    g[1][0] = 3; g[1][7] = 2;
-    levels.push({ id:23, name:"Loop Bonus", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:1,direction:'right'}, parTime:50, parCommands:3, availableCommands:zone2Commands, maxCommands:12, hint:"Collect bonus tiles on your way!", conceptTaught:"Loops + Bonus Scoring" });
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5]]);
+    g[3][0] = 3; g[3][5] = 2;
+    levels.push({ 
+      id:21, name:"If Path Ahead", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:25, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','turnLeft','turnRight','turnAround'],
+      maxCommands:12, hint:"Use 'If Path Ahead' to move only when the way is clear.", 
+      conceptTaught:"If Path Ahead Conditional", zone:2,
+      requiredTurns:0, decisionPoints:1, complexityScore: 12
+    });
   })();
 
-  // Level 24: Zone Boss
+  // L22: If Path Ahead with repeat
   (() => {
     const g = fillGrid(8, 1);
-    for (let c = 0; c < 6; c++) g[0][c] = 0;
-    for (let r = 0; r < 4; r++) g[r][5] = 0;
-    for (let c = 5; c >= 2; c--) g[3][c] = 0;
-    for (let r = 3; r < 7; r++) g[r][2] = 0;
-    for (let c = 2; c < 8; c++) g[6][c] = 0;
-    g[0][0] = 3; g[6][7] = 2;
-    levels.push({ id:24, name:"Zone Boss", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:60, parCommands:10, availableCommands:zone2Commands, maxCommands:22, hint:"Combine all loop types for this serpentine path.", conceptTaught:"Loop Mastery" });
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6]]);
+    g[2][0] = 3; g[2][6] = 2;
+    levels.push({ 
+      id:22, name:"Repeat If Path", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:28, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','turnLeft','turnRight','turnAround'],
+      maxCommands:12, hint:"Repeat the 'If Path Ahead' check to move safely.", 
+      conceptTaught:"Repeat If Paths", zone:2,
+      requiredTurns:0, decisionPoints:1, complexityScore: 13
+    });
   })();
 
-  // ===== ZONE 3: Complex — Architect (10×10) =====
-  const zone3Commands = [...zone2Commands, 'ifPathAhead','ifWallTurnLeft','ifWallTurnRight','ifGoalAhead','ifElse'];
+  // L23: If Path Ahead with branching
+  (() => {
+    const g = fillGrid(8, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,4],[2,5],[3,5],[4,5],[4,6],[4,7]]);
+    g[0][0] = 3; g[4][7] = 2;
+    levels.push({ 
+      id:23, name:"Path Decision", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:35, parCommands:4, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','turnLeft','turnRight','turnAround'],
+      maxCommands:14, hint:"Check if paths exist before deciding which way to turn.", 
+      conceptTaught:"Conditional Navigation", zone:2,
+      requiredTurns:2, decisionPoints:2, complexityScore: 16
+    });
+  })();
 
-  const zone3Configs: { id: number; name: string; concept: string; parCmd: number; maxCmd: number; parTime: number; hint: string; path: [number,number][] }[] = [
-    { id:25, name:"Fork in the Road", concept:"If Path Ahead", parCmd:6, maxCmd:20, parTime:35,
-      hint:"Use 'If Path Ahead → Move' to navigate safely.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9]] },
-    { id:26, name:"Wall Detector", concept:"If Wall → Turn", parCmd:6, maxCmd:22, parTime:35,
-      hint:"Detect walls and turn automatically.",
-      path:[[0,0],[1,0],[2,0],[3,0],[3,1],[3,2],[3,3],[2,3],[1,3],[1,4],[1,5],[1,6],[1,7],[1,8],[1,9]] },
-    { id:27, name:"Goal Sensor", concept:"If Goal Ahead", parCmd:3, maxCmd:12, parTime:25,
-      hint:"Use 'If Goal Ahead → Move' to reach the flag.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9]] },
-    { id:28, name:"Blue Tile Rule", concept:"Color Conditionals", parCmd:8, maxCmd:24, parTime:40,
-      hint:"When you see a blue tile, turn right.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5],[4,6],[5,6],[6,6],[6,7],[6,8],[6,9]] },
-    { id:29, name:"Safe Path", concept:"Safe Path Detection", parCmd:8, maxCmd:22, parTime:40,
-      hint:"Only move forward when the path is clear.",
-      path:[[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3],[3,4],[3,5],[3,6],[3,7],[4,7],[5,7],[5,8],[5,9]] },
-    { id:30, name:"Choose Wisely", concept:"If/Else Block", parCmd:8, maxCmd:22, parTime:45,
-      hint:"Use If/Else to handle two different situations.",
-      path:[[0,0],[0,1],[1,1],[2,1],[3,1],[3,2],[3,3],[3,4],[4,4],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9]] },
-    { id:31, name:"Two Choices", concept:"Nested If/Else", parCmd:10, maxCmd:28, parTime:50,
-      hint:"Nest your conditionals for complex decisions.",
-      path:[[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[3,2],[2,2],[2,3],[2,4],[2,5],[3,5],[4,5],[5,5],[6,5],[6,6],[6,7],[6,8],[6,9]] },
-    { id:32, name:"While Blocked", concept:"While Loop", parCmd:8, maxCmd:20, parTime:45,
-      hint:"Wait while the path is blocked, then move.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9]] },
-    { id:33, name:"Sensor Array", concept:"Multiple Sensors", parCmd:10, maxCmd:26, parTime:55,
-      hint:"Combine multiple sensor commands.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[2,5],[3,5],[4,5],[4,6],[4,7],[5,7],[6,7],[7,7],[7,8],[7,9]] },
-    { id:34, name:"Color Maze", concept:"Color Conditionals", parCmd:10, maxCmd:28, parTime:55,
-      hint:"Different colored tiles require different actions.",
-      path:[[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,4],[2,5],[2,6],[3,6],[4,6],[4,7],[4,8],[4,9],[5,9],[6,9],[7,9],[8,9],[9,9]] },
-    { id:35, name:"Variables Enter", concept:"Set Variable", parCmd:10, maxCmd:28, parTime:50,
-      hint:"Set a variable to track your progress.",
-      path:[[0,0],[1,0],[2,0],[3,0],[3,1],[3,2],[3,3],[4,3],[5,3],[5,4],[5,5],[5,6],[6,6],[7,6],[8,6],[8,7],[8,8],[8,9]] },
-    { id:36, name:"Count Steps", concept:"Change Variable", parCmd:10, maxCmd:24, parTime:50,
-      hint:"Increment stepsTaken each time you move.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[3,2],[4,2],[4,3],[4,4],[4,5],[5,5],[6,5],[7,5],[7,6],[7,7],[7,8],[7,9]] },
-    { id:37, name:"Conditional Var", concept:"Compare Variable", parCmd:12, maxCmd:28, parTime:60,
-      hint:"Compare your variable to decide which way to go.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7],[6,8],[7,8],[8,8],[9,8],[9,9]] },
-    { id:38, name:"Zone Boss", concept:"Conditional Mastery", parCmd:14, maxCmd:32, parTime:65,
-      hint:"Use everything you've learned about conditionals.",
-      path:[[0,0],[0,1],[1,1],[2,1],[2,2],[2,3],[3,3],[4,3],[4,4],[4,5],[4,6],[5,6],[6,6],[6,7],[7,7],[8,7],[8,8],[9,8],[9,9]] },
-  ];
+  // L24: If Path Ahead complex maze
+  (() => {
+    const g = fillGrid(8, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[2,2],[3,2],[3,1],[3,0],[4,0],[5,0],[5,1],[5,2],[5,3],[5,4]]);
+    g[1][0] = 3; g[5][4] = 2;
+    levels.push({ 
+      id:24, name:"Smart Navigation", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:40, parCommands:6, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Use multiple path checks to navigate autonomously.", 
+      conceptTaught:"Multi-Path Conditionals", zone:2,
+      requiredTurns:3, decisionPoints:3, complexityScore: 18
+    });
+  })();
 
-  for (const cfg of zone3Configs) {
+  // L25: Phase 2 Boss - All Builder concepts
+  (() => {
+    const g = fillGrid(8, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,2],[2,1],[2,0],[3,0],[4,0],[4,1],[4,2],[4,3],[5,3],[6,3],[6,4],[6,5],[6,6]]);
+    g[0][0] = 3; g[6][6] = 2;
+    levels.push({ 
+      id:25, name:"Builder Boss", phase:2, gridSize:8, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:55, parCommands:10, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','turnLeft','turnRight','turnAround'],
+      maxCommands:24, hint:"Combine loops, wall sensing, and path conditionals.", 
+      conceptTaught:"Builder Mastery", zone:2,
+      requiredTurns:4, decisionPoints:3, complexityScore: 22
+    });
+  })();
+
+  // ===== PHASE 3: ARCHITECT (Levels 26-40) =====
+  // Wall-following with If Wall Left/Right, If-Else blocks, nested conditionals
+
+  // L26: If Wall Left/Right intro
+  (() => {
     const g = fillGrid(10, 1);
-    setPath(g, cfg.path);
-    if (cfg.id === 28 || cfg.id === 34) {
-      for (let j = 3; j < cfg.path.length - 1; j += 4) {
-        g[cfg.path[j][0]][cfg.path[j][1]] = 4;
-      }
-    }
-    g[cfg.path[0][0]][cfg.path[0][1]] = 3;
-    const last = cfg.path[cfg.path.length - 1];
-    g[last[0]][last[1]] = 2;
-
-    levels.push({
-      id: cfg.id, name: cfg.name, zone: 3, gridSize: 10, grid: g as any,
-      robotStart: { x: cfg.path[0][1], y: cfg.path[0][0], direction: 'right' },
-      parTime: cfg.parTime, parCommands: cfg.parCmd,
-      availableCommands: cfg.id >= 35 ? [...zone3Commands, 'setVariable', 'changeVariable', 'compareVariable'] : zone3Commands,
-      maxCommands: cfg.maxCmd, hint: cfg.hint, conceptTaught: cfg.concept,
+    setPath(g, [[5,0],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7]]);
+    g[5][0] = 3; g[5][7] = 2;
+    levels.push({ 
+      id:26, name:"Wall Sensor Left", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:5,direction:'right'}, parTime:28, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:14, hint:"Detect walls on the left side without turning.", 
+      conceptTaught:"Wall Left Sensor", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 14
     });
-  }
+  })();
 
-  // ===== ZONE 4: University — Master (12×12) =====
-  const zone4Commands = [...zone3Commands, 'setVariable', 'changeVariable', 'compareVariable', 'defineFunction', 'callFunction', 'andOp', 'orOp', 'notOp'];
+  // L27: If Wall Right sensor
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9]]);
+    g[2][0] = 3; g[2][9] = 2;
+    levels.push({ 
+      id:27, name:"Wall Sensor Right", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:28, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:14, hint:"Use 'If Wall Right' to detect walls on the right.", 
+      conceptTaught:"Wall Right Sensor", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 14
+    });
+  })();
 
-  const zone4Configs: { id: number; name: string; concept: string; parCmd: number; maxCmd: number; parTime: number; hint: string; path: [number,number][] }[] = [
-    { id:39, name:"My First Function", concept:"Define + Call Function", parCmd:6, maxCmd:22, parTime:40,
-      hint:"Define a GoStraight function and call it.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[5,11]] },
-    { id:40, name:"Corner Routine", concept:"TurnCorner Function", parCmd:8, maxCmd:28, parTime:45,
-      hint:"Create a function that turns a corner efficiently.",
-      path:[[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3],[3,4],[3,5],[3,6],[4,6],[5,6],[6,6],[6,7],[6,8],[6,9],[7,9],[8,9],[8,10],[8,11]] },
-    { id:41, name:"Reuse It", concept:"Function Reuse", parCmd:7, maxCmd:24, parTime:40,
-      hint:"Call the same function multiple times.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[2,5],[2,6],[2,7],[2,8],[3,8],[4,8],[4,9],[4,10],[4,11]] },
-    { id:42, name:"Escape Path", concept:"Complex Functions", parCmd:12, maxCmd:36, parTime:55,
-      hint:"Build an escape function.",
-      path:[[0,0],[1,0],[2,0],[3,0],[3,1],[3,2],[2,2],[1,2],[1,3],[1,4],[2,4],[3,4],[3,5],[3,6],[2,6],[1,6],[1,7],[1,8],[2,8],[3,8],[3,9],[3,10],[3,11]] },
-    { id:43, name:"AND Logic", concept:"AND Operator", parCmd:10, maxCmd:30, parTime:50,
-      hint:"Both conditions must be true.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[3,2],[4,2],[4,3],[4,4],[4,5],[5,5],[6,5],[7,5],[7,6],[7,7],[8,7],[9,7],[9,8],[9,9],[9,10],[9,11]] },
-    { id:44, name:"OR Logic", concept:"OR Operator", parCmd:10, maxCmd:32, parTime:50,
-      hint:"Either condition works.",
-      path:[[0,0],[0,1],[1,1],[2,1],[3,1],[3,2],[3,3],[4,3],[5,3],[6,3],[6,4],[6,5],[6,6],[7,6],[8,6],[8,7],[8,8],[9,8],[10,8],[10,9],[10,10],[10,11]] },
-    { id:45, name:"NOT Logic", concept:"NOT Operator", parCmd:8, maxCmd:28, parTime:45,
-      hint:"If NOT wall ahead, then move forward.",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5],[11,6],[11,7],[11,8],[11,9],[11,10],[11,11]] },
-    { id:46, name:"Combo Logic", concept:"Combined Logic", parCmd:14, maxCmd:36, parTime:60,
-      hint:"Combine AND, OR, NOT for complex decisions.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5],[4,6],[5,6],[6,6],[6,7],[6,8],[7,8],[8,8],[8,9],[8,10],[9,10],[10,10],[11,10],[11,11]] },
-    { id:47, name:"Nested Loops", concept:"Loop in Loop", parCmd:14, maxCmd:44, parTime:65,
-      hint:"Put a loop inside another loop for 2D patterns.",
-      path:[[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,2],[2,1],[3,1],[4,1],[4,2],[4,3],[5,3],[6,3],[6,2],[6,1],[7,1],[8,1],[8,2],[8,3],[8,4],[8,5],[9,5],[10,5],[11,5],[11,6],[11,7],[11,8],[11,9],[11,10],[11,11]] },
-    { id:48, name:"Full Algorithm", concept:"All Concepts", parCmd:16, maxCmd:40, parTime:70,
-      hint:"Functions + loops + conditions all together.",
-      path:[[0,0],[1,0],[2,0],[3,0],[3,1],[3,2],[3,3],[2,3],[1,3],[1,4],[1,5],[2,5],[3,5],[3,6],[3,7],[4,7],[5,7],[6,7],[6,8],[6,9],[7,9],[8,9],[8,10],[8,11],[9,11],[10,11],[11,11]] },
-    { id:49, name:"Speed Run", concept:"Optimization", parCmd:8, maxCmd:26, parTime:35,
-      hint:"Solve it with minimum commands!",
-      path:[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10],[0,11],[1,11],[2,11],[3,11],[4,11],[5,11],[6,11],[7,11],[8,11],[9,11],[10,11],[11,11]] },
-    { id:50, name:"Brilliant OS", concept:"Final Challenge", parCmd:20, maxCmd:52, parTime:120,
-      hint:"Everything you've learned, in one grand puzzle.",
-      path:[[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[1,4],[0,4],[0,5],[0,6],[0,7],[1,7],[2,7],[3,7],[3,6],[3,5],[4,5],[5,5],[5,6],[5,7],[5,8],[5,9],[6,9],[7,9],[7,8],[7,7],[8,7],[9,7],[9,8],[9,9],[9,10],[9,11],[10,11],[11,11]] },
-  ];
+  // L28: If Goal Ahead sensor
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9]]);
+    g[0][0] = 3; g[0][9] = 2;
+    levels.push({ 
+      id:28, name:"Goal Sensor", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:25, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:12, hint:"Use 'If Goal Ahead' to detect when the goal is in front.", 
+      conceptTaught:"Goal Ahead Sensor", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 12
+    });
+  })();
 
-  for (const cfg of zone4Configs) {
+  // L29: Wall-following corridor
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9]]);
+    g[3][0] = 3; g[3][9] = 2;
+    levels.push({ 
+      id:29, name:"Follow the Wall", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:30, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Follow the wall on your left or right to navigate.", 
+      conceptTaught:"Wall Following", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 15
+    });
+  })();
+
+  // L30: If-Else block intro
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6]]);
+    g[2][0] = 3; g[2][6] = 2;
+    levels.push({ 
+      id:30, name:"If-Else Intro", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:32, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Use If-Else: if condition is true do X, else do Y.", 
+      conceptTaught:"If-Else Conditional", zone:3,
+      requiredTurns:0, decisionPoints:2, complexityScore: 16
+    });
+  })();
+
+  // L31: If-Else with paths
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[4,5],[4,6],[4,7]]);
+    g[1][0] = 3; g[4][7] = 2;
+    levels.push({ 
+      id:31, name:"Conditional Paths", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:38, parCommands:5, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Use If-Else to choose between two different paths.", 
+      conceptTaught:"Path Conditionals", zone:3,
+      requiredTurns:1, decisionPoints:2, complexityScore: 18
+    });
+  })();
+
+  // L32: Nested If-Else blocks
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[3,3],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8]]);
+    g[0][0] = 3; g[4][8] = 2;
+    levels.push({ 
+      id:32, name:"Nested If-Else", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:42, parCommands:7, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:20, hint:"Put If-Else blocks inside other If-Else blocks.", 
+      conceptTaught:"Nested Conditionals", zone:3,
+      requiredTurns:2, decisionPoints:4, complexityScore: 22
+    });
+  })();
+
+  // L33: Complex wall-following
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[2,5],[3,5],[4,5],[4,4],[4,3],[4,2],[4,1],[5,1],[6,1],[6,2],[6,3]]);
+    g[1][0] = 3; g[6][3] = 2;
+    levels.push({ 
+      id:33, name:"Corridor Maze", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:45, parCommands:8, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:22, hint:"Navigate corridors using wall sensors and conditionals.", 
+      conceptTaught:"Wall Maze Navigation", zone:3,
+      requiredTurns:3, decisionPoints:4, complexityScore: 24
+    });
+  })();
+
+  // L34: Multi-sensor navigation
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[3,4],[4,4],[5,4],[5,5],[5,6],[5,7],[6,7],[7,7],[7,8],[7,9]]);
+    g[2][0] = 3; g[7][9] = 2;
+    levels.push({ 
+      id:34, name:"Multi-Sensor", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:48, parCommands:9, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','turnLeft','turnRight','turnAround'],
+      maxCommands:24, hint:"Combine multiple sensors for intelligent navigation.", 
+      conceptTaught:"Multi-Sensor Logic", zone:3,
+      requiredTurns:3, decisionPoints:5, complexityScore: 26
+    });
+  })();
+
+  // L35: Variables intro
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[0,9]]);
+    g[0][0] = 3; g[0][9] = 2;
+    levels.push({ 
+      id:35, name:"Set Variable", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:30, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Create and set a variable to track your progress.", 
+      conceptTaught:"Set Variable", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 15
+    });
+  })();
+
+  // L36: Change variable in loop
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8]]);
+    g[3][0] = 3; g[3][8] = 2;
+    levels.push({ 
+      id:36, name:"Counter Loop", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:35, parCommands:4, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Increment a counter variable each time you move.", 
+      conceptTaught:"Change Variable", zone:3,
+      requiredTurns:0, decisionPoints:1, complexityScore: 16
+    });
+  })();
+
+  // L37: Compare variable conditionally
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9]]);
+    g[1][0] = 3; g[4][9] = 2;
+    levels.push({ 
+      id:37, name:"Variable Compare", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:42, parCommands:6, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:20, hint:"Use compareVariable to make decisions based on variable values.", 
+      conceptTaught:"Compare Variable", zone:3,
+      requiredTurns:1, decisionPoints:2, complexityScore: 20
+    });
+  })();
+
+  // L38: Variables + sensors combined
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3],[3,4],[3,5],[3,6],[4,6],[5,6],[5,7],[5,8],[5,9]]);
+    g[0][0] = 3; g[5][9] = 2;
+    levels.push({ 
+      id:38, name:"Smart Variables", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:48, parCommands:8, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:24, hint:"Track movement progress with variables and sensors.", 
+      conceptTaught:"Variables + Sensors", zone:3,
+      requiredTurns:2, decisionPoints:3, complexityScore: 24
+    });
+  })();
+
+  // L39: Complex nested conditionals
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[3,3],[4,3],[4,2],[4,1],[4,0],[5,0],[6,0],[6,1],[6,2],[7,2],[8,2],[9,2]] );
+    g[2][0] = 3; g[9][2] = 2;
+    levels.push({ 
+      id:39, name:"Nested Complexity", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:52, parCommands:10, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:26, hint:"Layer nested conditionals with variables for complex logic.", 
+      conceptTaught:"Advanced Logic", zone:3,
+      requiredTurns:3, decisionPoints:5, complexityScore: 28
+    });
+  })();
+
+  // L40: Phase 3 Boss - Architect mastery
+  (() => {
+    const g = fillGrid(10, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[2,3],[3,3],[4,3],[4,4],[4,5],[5,5],[6,5],[6,6],[6,7],[6,8],[6,9],[7,9],[8,9],[9,9]]);
+    g[1][0] = 3; g[9][9] = 2;
+    levels.push({ 
+      id:40, name:"Architect Boss", phase:3, gridSize:10, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:60, parCommands:12, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','turnLeft','turnRight','turnAround'],
+      maxCommands:28, hint:"Master all Architect concepts for this final challenge.", 
+      conceptTaught:"Architect Mastery", zone:3,
+      requiredTurns:4, decisionPoints:6, complexityScore: 32
+    });
+  })();
+
+  // ===== PHASE 4: MASTER (Levels 41-50) =====
+  // Variables, function definitions, AND/OR/NOT logic
+
+  // L41: Define function intro
+  (() => {
     const g = fillGrid(12, 1);
-    setPath(g, cfg.path);
-    g[cfg.path[0][0]][cfg.path[0][1]] = 3;
-    const last = cfg.path[cfg.path.length - 1];
-    g[last[0]][last[1]] = 2;
-
-    levels.push({
-      id: cfg.id, name: cfg.name, zone: 4, gridSize: 12, grid: g as any,
-      robotStart: { x: cfg.path[0][1], y: cfg.path[0][0], direction: 'right' },
-      parTime: cfg.parTime, parCommands: cfg.parCmd,
-      availableCommands: zone4Commands,
-      maxCommands: cfg.maxCmd, hint: cfg.hint, conceptTaught: cfg.concept,
+    setPath(g, [[5,0],[5,1],[5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],[5,9],[5,10],[5,11]]);
+    g[5][0] = 3; g[5][11] = 2;
+    levels.push({ 
+      id:41, name:"Define Function", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:5,direction:'right'}, parTime:35, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Define a GoForward function and call it to move.", 
+      conceptTaught:"Define + Call Function", zone:4,
+      requiredTurns:0, decisionPoints:1, complexityScore: 18
     });
-  }
+  })();
+
+  // L42: Call function multiple times
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8]]);
+    g[3][0] = 3; g[3][8] = 2;
+    levels.push({ 
+      id:42, name:"Function Reuse", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:32, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Define a function and call it multiple times.", 
+      conceptTaught:"Function Reuse", zone:4,
+      requiredTurns:0, decisionPoints:1, complexityScore: 18
+    });
+  })();
+
+  // L43: Function with conditions
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[2,0],[2,1],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5],[4,6],[4,7]]);
+    g[2][0] = 3; g[4][7] = 2;
+    levels.push({ 
+      id:43, name:"Smart Functions", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:2,direction:'right'}, parTime:40, parCommands:5, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:20, hint:"Create a function with conditional logic inside.", 
+      conceptTaught:"Functions with Logic", zone:4,
+      requiredTurns:1, decisionPoints:2, complexityScore: 22
+    });
+  })();
+
+  // L44: AND operator intro
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[6,0],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[6,7],[6,8],[6,9]]);
+    g[6][0] = 3; g[6][9] = 2;
+    levels.push({ 
+      id:44, name:"AND Logic", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:6,direction:'right'}, parTime:35, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Use AND: both conditions must be true to move.", 
+      conceptTaught:"AND Operator", zone:4,
+      requiredTurns:0, decisionPoints:1, complexityScore: 18
+    });
+  })();
+
+  // L45: OR operator intro
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7]]);
+    g[1][0] = 3; g[1][7] = 2;
+    levels.push({ 
+      id:45, name:"OR Logic", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:32, parCommands:3, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:18, hint:"Use OR: either condition can be true to proceed.", 
+      conceptTaught:"OR Operator", zone:4,
+      requiredTurns:0, decisionPoints:1, complexityScore: 18
+    });
+  })();
+
+  // L46: NOT operator
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8]]);
+    g[4][0] = 3; g[4][8] = 2;
+    levels.push({ 
+      id:46, name:"NOT Logic", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:4,direction:'right'}, parTime:30, parCommands:2, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:16, hint:"Use NOT: move if wall is NOT ahead.", 
+      conceptTaught:"NOT Operator", zone:4,
+      requiredTurns:0, decisionPoints:1, complexityScore: 16
+    });
+  })();
+
+  // L47: Combined logic operators
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[3,3],[3,4],[3,5],[3,6],[4,6],[5,6],[5,7],[5,8],[5,9]]);
+    g[0][0] = 3; g[5][9] = 2;
+    levels.push({ 
+      id:47, name:"Combined Logic", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:0,direction:'right'}, parTime:48, parCommands:7, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:22, hint:"Combine AND, OR, NOT for complex decision logic.", 
+      conceptTaught:"Logic Combinations", zone:4,
+      requiredTurns:2, decisionPoints:4, complexityScore: 26
+    });
+  })();
+
+  // L48: Functions + logic combined
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[3,0],[3,1],[3,2],[3,3],[4,3],[5,3],[5,4],[5,5],[5,6],[6,6],[7,6],[7,7],[7,8],[8,8],[9,8],[10,8],[11,8]]);
+    g[3][0] = 3; g[11][8] = 2;
+    levels.push({ 
+      id:48, name:"Logic Functions", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:3,direction:'right'}, parTime:55, parCommands:9, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:26, hint:"Define functions that use AND/OR/NOT logic.", 
+      conceptTaught:"Functions with Logic", zone:4,
+      requiredTurns:3, decisionPoints:4, complexityScore: 30
+    });
+  })();
+
+  // L49: Advanced algorithm challenge
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[6,0],[6,1],[6,2],[6,3],[5,3],[4,3],[4,4],[4,5],[3,5],[2,5],[2,6],[2,7],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[8,9],[8,10],[8,11]]);
+    g[6][0] = 3; g[8][11] = 2;
+    levels.push({ 
+      id:49, name:"Algorithm Master", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:6,direction:'right'}, parTime:70, parCommands:14, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:36, hint:"Master all programming concepts in this complex maze.", 
+      conceptTaught:"Advanced Algorithms", zone:4,
+      requiredTurns:4, decisionPoints:6, complexityScore: 36
+    });
+  })();
+
+  // L50: Phase 4 Boss - Ultimate puzzle (Final Challenge)
+  (() => {
+    const g = fillGrid(12, 1);
+    setPath(g, [[1,0],[1,1],[1,2],[1,3],[2,3],[3,3],[3,2],[3,1],[3,0],[4,0],[5,0],[5,1],[5,2],[5,3],[5,4],[5,5],[6,5],[7,5],[7,4],[7,3],[7,2],[7,1],[8,1],[9,1],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[9,10],[9,11],[10,11],[11,11]]);
+    g[1][0] = 3; g[11][11] = 2;
+    levels.push({ 
+      id:50, name:"Brilliant OS", phase:4, gridSize:12, grid:g as any, 
+      robotStart:{x:0,y:1,direction:'right'}, parTime:120, parCommands:18, 
+      availableCommands:['moveForward1','moveForward2','moveForward3','repeat2','repeat3','repeat4','repeat5','repeatUntilGoal','repeatUntilWall','ifPathAhead','ifWallLeft','ifWallRight','ifGoalAhead','ifElse','setVariable','changeVariable','compareVariable','defineFunction','callFunction','andOp','orOp','notOp','turnLeft','turnRight','turnAround'],
+      maxCommands:48, hint:"Everything you've learned combined: loops, conditions, functions, variables, and logic operators.",
+      conceptTaught:"Master Challenge", zone:4,
+      requiredTurns:6, decisionPoints:8, complexityScore: 48
+    });
+  })();
 
   return levels;
 }
