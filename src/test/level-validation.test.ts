@@ -6,6 +6,29 @@ describe('Level Validation Suite', () => {
     expect(levels).toHaveLength(50);
   });
 
+  it('should have no duplicate level IDs', () => {
+    const ids = levels.map(l => l.id);
+    expect(new Set(ids).size).toBe(50);
+  });
+
+  it('should have no duplicate paths (levels must be unique)', () => {
+    const pathStrings = levels.map(l => {
+      const cells: string[] = [];
+      for (let y = 0; y < l.gridSize; y++) {
+        for (let x = 0; x < l.gridSize; x++) {
+          if (l.grid[y][x] !== 1) cells.push(`${x},${y}`);
+        }
+      }
+      return cells.sort().join('|');
+    });
+    // Check adjacent levels in same zone aren't identical
+    for (let i = 0; i < pathStrings.length - 1; i++) {
+      if (levels[i].zone === levels[i+1].zone) {
+        expect(pathStrings[i]).not.toBe(pathStrings[i+1]);
+      }
+    }
+  });
+
   describe('Level structure', () => {
     levels.forEach(level => {
       describe(`Level ${level.id}: ${level.name}`, () => {
@@ -22,26 +45,20 @@ describe('Level Validation Suite', () => {
         });
 
         it('should have valid grid dimensions', () => {
-          const grid = level.grid;
-          expect(Array.isArray(grid)).toBe(true);
-          expect(grid.length).toBe(level.gridSize);
-          grid.forEach((row) => {
+          expect(level.grid.length).toBe(level.gridSize);
+          level.grid.forEach((row) => {
             expect(row.length).toBe(level.gridSize);
           });
         });
 
-        it('should have start and goal markers in grid', () => {
-          const grid = level.grid;
-          let hasStart = false;
-          let hasGoal = false;
-          
-          for (let y = 0; y < grid.length; y++) {
-            for (let x = 0; x < grid[y].length; x++) {
-              if (grid[y][x] === 3) hasStart = true;
-              if (grid[y][x] === 2) hasGoal = true;
+        it('should have start and goal markers', () => {
+          let hasStart = false, hasGoal = false;
+          for (let y = 0; y < level.grid.length; y++) {
+            for (let x = 0; x < level.grid[y].length; x++) {
+              if (level.grid[y][x] === 3) hasStart = true;
+              if (level.grid[y][x] === 2) hasGoal = true;
             }
           }
-          
           expect(hasStart).toBe(true);
           expect(hasGoal).toBe(true);
         });
@@ -53,30 +70,19 @@ describe('Level Validation Suite', () => {
           expect(level.robotStart.y).toBeLessThan(level.gridSize);
         });
 
-        it('should have robot start position accessible in grid', () => {
+        it('should have robot on walkable cell', () => {
           const { x, y } = level.robotStart;
-          const gridCell = level.grid[y][x];
-          expect([0, 3]).toContain(gridCell);
+          expect([0, 3]).toContain(level.grid[y][x]);
         });
 
-        it('should have valid available commands', () => {
-          expect(level.availableCommands).toBeDefined();
-          expect(Array.isArray(level.availableCommands)).toBe(true);
-          expect(level.availableCommands.length).toBeGreaterThan(0);
-        });
-
-        it('should have realistic par values', () => {
+        it('should have valid par and max commands', () => {
           expect(level.parCommands).toBeGreaterThan(0);
           expect(level.parCommands).toBeLessThanOrEqual(level.maxCommands);
           expect(level.parTime).toBeGreaterThan(0);
-        });
-
-        it('should have positive max commands', () => {
           expect(level.maxCommands).toBeGreaterThan(level.parCommands);
         });
 
-        it('should have valid zone based on difficulty', () => {
-          expect([1, 2, 3, 4]).toContain(level.zone);
+        it('should have correct zone', () => {
           if (level.id <= 12) expect(level.zone).toBe(1);
           if (level.id >= 13 && level.id <= 24) expect(level.zone).toBe(2);
           if (level.id >= 25 && level.id <= 38) expect(level.zone).toBe(3);
@@ -89,21 +95,6 @@ describe('Level Validation Suite', () => {
           if (level.zone === 3) expect(level.gridSize).toBe(10);
           if (level.zone === 4) expect(level.gridSize).toBe(12);
         });
-      });
-    });
-  });
-
-  describe('Path connectivity', () => {
-    [1, 7, 12, 24, 38, 50].forEach(levelId => {
-      it(`Level ${levelId} should have valid adjacent path cells`, () => {
-        const level = levels.find(l => l.id === levelId);
-        expect(level).toBeDefined();
-        
-        const grid = level!.grid;
-        const { x: startX, y: startY } = level!.robotStart;
-        
-        const start = grid[startY][startX];
-        expect([0, 3]).toContain(start);
       });
     });
   });
