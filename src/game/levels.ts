@@ -172,7 +172,7 @@ function createLevels(): LevelData[] {
     for (let r = 2; r <= 5; r++) g[r][5] = 0;
     for (let c = 5; c >= 3; c--) g[5][c] = 0;
     g[0][0] = 3; g[5][3] = 2;
-    levels.push({ id:19, name:"Spiral In", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:60, parCommands:12, availableCommands:zone2Commands, maxCommands:24, hint:"Follow the spiral inward — use loops for straight segments.", conceptTaught:"Nested Repeat Logic" });
+    levels.push({ id:19, name:"Spiral In", zone:2, gridSize:8, grid:g as any, robotStart:{x:0,y:0,direction:'right'}, parTime:60, parCommands:15, availableCommands:zone2Commands, maxCommands:26, hint:"Follow the spiral inward — use loops for straight segments.", conceptTaught:"Nested Repeat Logic" });
   })();
 
   // Level 20: Efficiency Test
