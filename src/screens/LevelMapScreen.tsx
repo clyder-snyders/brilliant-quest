@@ -6,10 +6,10 @@ import { getRankTitle, getLeaderboard, clearLeaderboard } from '../game/storage'
 import { IconStar, IconStarEmpty, IconTrophy, IconFlame, IconTarget, IconCheck, IconLock } from '../components/Icons';
 
 const zones = [
-  { id: 1, name: 'Easy — Foundations', range: 'Levels 1–12', color: 'hsl(168, 76%, 40%)', gradientFrom: '#14B8A6', gradientTo: '#0D9488' },
-  { id: 2, name: 'Difficult — Builder', range: 'Levels 13–24', color: 'hsl(217, 91%, 60%)', gradientFrom: '#3B82F6', gradientTo: '#2563EB' },
-  { id: 3, name: 'Complex — Architect', range: 'Levels 25–38', color: 'hsl(258, 90%, 66%)', gradientFrom: '#8B5CF6', gradientTo: '#7C3AED' },
-  { id: 4, name: 'University — Master', range: 'Levels 39–50', color: 'hsl(217, 33%, 17%)', gradientFrom: '#1E293B', gradientTo: '#0F172A' },
+  { id: 1, name: 'Easy — Foundations', range: 'Levels 1–10', color: 'hsl(168, 76%, 40%)', gradientFrom: '#14B8A6', gradientTo: '#0D9488' },
+  { id: 2, name: 'Difficult — Builder', range: 'Levels 11–25', color: 'hsl(217, 91%, 60%)', gradientFrom: '#3B82F6', gradientTo: '#2563EB' },
+  { id: 3, name: 'Complex — Architect', range: 'Levels 26–40', color: 'hsl(258, 90%, 66%)', gradientFrom: '#8B5CF6', gradientTo: '#7C3AED' },
+  { id: 4, name: 'University — Master', range: 'Levels 41–50', color: 'hsl(217, 33%, 17%)', gradientFrom: '#1E293B', gradientTo: '#0F172A' },
 ];
 
 const ZoneIcon = ({ zone }: { zone: number }) => {
