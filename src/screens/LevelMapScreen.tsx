@@ -44,6 +44,10 @@ export default function LevelMapScreen() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showDailyChallenge, setShowDailyChallenge] = useState(false);
 
+  const dailyChallenge = useMemo(() => getDailyChallenge(), []);
+  const dailyLevel = levelData.find(l => l.id === dailyChallenge.levelId);
+  const dailyCompleted = isDailyChallengeCompleted(dailyChallenge.dateKey);
+
   // Defensive check for levelData
   if (!levelData || levelData.length === 0) {
     return (
@@ -58,10 +62,6 @@ export default function LevelMapScreen() {
       </div>
     );
   }
-
-  const dailyChallenge = useMemo(() => getDailyChallenge(), []);
-  const dailyLevel = levelData.find(l => l.id === dailyChallenge.levelId);
-  const dailyCompleted = isDailyChallengeCompleted(dailyChallenge.dateKey);
 
   const isLevelUnlocked = (levelId: number) => {
     if (levelId === 1) return true;
