@@ -19,7 +19,7 @@ function createLevels(): LevelData[] {
     setPath(g, [[2,0],[2,1]]);
     g[2][0] = 3; g[2][1] = 2;
     levels.push({
-      id:1, name:"Move Forward 1", phase:1, gridSize:5, grid:g as unknown,
+      id:1, name:"Move Forward 1", phase:1, gridSize:5, grid:g as any,
       robotStart:{x:0,y:2,direction:'right'}, parTime:5, parCommands:1,
       availableCommands:['moveForward1'],
       maxCommands:3, hint:"Drag move 1 block to workspace and click Run.",
@@ -34,7 +34,7 @@ function createLevels(): LevelData[] {
     setPath(g, [[2,0],[2,1],[2,2]]);
     g[2][0] = 3; g[2][2] = 2;
     levels.push({
-      id:2, name:"Move Forward 2", phase:1, gridSize:5, grid:g as unknown,
+      id:2, name:"Move Forward 2", phase:1, gridSize:5, grid:g as any,
       robotStart:{x:0,y:2,direction:'right'}, parTime:8, parCommands:2,
       availableCommands:['moveForward1'],
       maxCommands:4, hint:"Move forward twice to reach the goal.",

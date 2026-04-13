@@ -98,4 +98,3 @@ export default function BlockPalette({ availableCommands, onDragStart }: BlockPa
 }
 
 export type { Block };
-export { BLOCK_LIBRARY };

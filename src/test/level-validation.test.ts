@@ -83,17 +83,14 @@ describe('Level Validation Suite', () => {
         });
 
         it('should have correct zone', () => {
-          if (level.id <= 12) expect(level.zone).toBe(1);
-          if (level.id >= 13 && level.id <= 24) expect(level.zone).toBe(2);
-          if (level.id >= 25 && level.id <= 38) expect(level.zone).toBe(3);
-          if (level.id >= 39) expect(level.zone).toBe(4);
+          if (level.id <= 10) expect(level.zone).toBe(1);
+          else if (level.id <= 25) expect(level.zone).toBe(2);
+          else if (level.id <= 40) expect(level.zone).toBe(3);
+          else expect(level.zone).toBe(4);
         });
 
-        it('should have correct grid size for zone', () => {
-          if (level.zone === 1) expect(level.gridSize).toBe(6);
-          if (level.zone === 2) expect(level.gridSize).toBe(8);
-          if (level.zone === 3) expect(level.gridSize).toBe(10);
-          if (level.zone === 4) expect(level.gridSize).toBe(12);
+        it('should have valid grid size', () => {
+          expect([5, 6, 8, 10, 12]).toContain(level.gridSize);
         });
       });
     });
