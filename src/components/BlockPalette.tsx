@@ -7,7 +7,7 @@ interface Block {
   color: string;
 }
 
-const BLOCK_LIBRARY: Record<string, Block> = {
+export const BLOCK_LIBRARY: Record<string, Block> = {
   moveForward1: { id: 'moveForward1', label: 'Move 1', type: 'movement', color: '#3B82F6' },
   moveForward2: { id: 'moveForward2', label: 'Move 2', type: 'movement', color: '#3B82F6' },
   moveForward3: { id: 'moveForward3', label: 'Move 3', type: 'movement', color: '#3B82F6' },

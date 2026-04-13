@@ -69,11 +69,13 @@ function GameRouter() {
   return (
     <>
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-      <div className="min-h-screen">
-        {screenMap[currentScreen] || <WelcomeScreen />}
-      </div>
-      {state.currentScreen !== 'game' && <FeedbackButton />}
-      <PWAInstallBanner />
+      {!showSplash && (
+        <>
+          {screenMap[currentScreen] || <WelcomeScreen />}
+          {state.currentScreen !== 'game' && <FeedbackButton />}
+          <PWAInstallBanner />
+        </>
+      )}
     </>
   );
 }
