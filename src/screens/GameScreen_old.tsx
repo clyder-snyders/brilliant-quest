@@ -8,7 +8,7 @@ import { validateLevelData } from '../game/validation';
 import { GAME_CONFIG } from '../game/constants';
 import { IconTimer, IconCode } from '../components/Icons';
 import BlockPalette from '../components/BlockPalette';
-import CodeWorkspace, { type } from '../components/CodeWorkspace';
+import CodeWorkspace from '../components/CodeWorkspace';
 
 interface WorkspaceBlock {
   blockId: string;
