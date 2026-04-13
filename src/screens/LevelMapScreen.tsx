@@ -70,10 +70,9 @@ export default function LevelMapScreen() {
 
   const isZoneAccessible = (zoneId: number) => {
     if (zoneId === 1) return true;
-    const zoneLevels = levelData.filter(l => l.zone === zoneId);
-    const completedCount = zoneLevels.filter(l => state.levelProgress[l.id]?.completed).length;
-    const threshold = Math.ceil(zoneLevels.length * 0.7);
-    return completedCount >= threshold;
+    const prevZoneLevels = levelData.filter(l => l.zone === (zoneId - 1));
+    const completedCount = prevZoneLevels.filter(l => state.levelProgress[l.id]?.completed).length;
+    return completedCount >= Math.ceil(prevZoneLevels.length * 0.7);
   };
 
   const startLevel = (levelId: number) => {
